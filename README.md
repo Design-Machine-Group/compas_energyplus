@@ -2,6 +2,6 @@
 
 Building energy simulation based on Energy+
 
-Acknowledgement 
+# Acknowledgements
 
 The developement of this library was partially supported by the Johnston-Hastings Travel Endowment.
