@@ -10,6 +10,8 @@ import os
 import compas_energyplus
 import subprocess
 
+#TODO: Volmesh?
+
 class Building(object):
     def __init__(self, filepath, weather):
         self.filepath = filepath
