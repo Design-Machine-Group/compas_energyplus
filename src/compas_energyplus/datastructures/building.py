@@ -11,13 +11,14 @@ import compas_energyplus
 import subprocess
 
 #TODO: Volmesh?
+#TODO: Assembly?
 
 class Building(object):
     def __init__(self, filepath, weather):
         self.filepath = filepath
         self.weather = weather
 
-        self.name = 'TomasBuilding'
+        self.name = 'Building'
         self.ep_version = '9.5'
         self.num_timesteps = 6
         self.terrain = 'City'
