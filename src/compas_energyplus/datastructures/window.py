@@ -9,6 +9,8 @@ __version__ = "0.1.0"
 import os
 import json
 
+# TODO: implement from wall and WWR
+
 class Window(object):
     def __init__(self):
         self.name = None

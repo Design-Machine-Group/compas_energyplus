@@ -7,6 +7,7 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 import os
+import json
 from compas.datastructures import Mesh
 
 # TODO: Make custom object, use mesh only for surfaces
@@ -16,6 +17,11 @@ class Zone(object):
         self.name = 'Generic Zone'
         self.surfaces = None
 
+    def to_json(self):
+        pass
+
+    def from_json(self):
+        pass
 
 
 class ZoneSurfaces(object):
