@@ -13,6 +13,7 @@ def write_idf(building):
     write_pre(building)
     write_building(building)
     write_zones(building)
+    write_windows(building)
 
 def write_pre(building):
     fh = open(building.filepath, 'a')
@@ -57,25 +58,37 @@ def write_zone_surfaces(building, zone):
     fh.close()
 
 def write_building_surface(building, zone, fk):
-    """
-    BuildingSurface:Detailed,
-    AdiabaticWall_2432ddde_0,               !- Name
-    Wall,                                   !- Surface Type
-    Generic Interior Floor,                 !- Construction Name
-    1_zonename_80f89f28,                    !- Zone Name
-    Adiabatic,                              !- Outside Boundary Condition
-    ,                                       !- Outside Boundary Condition Object
-    NoSun,                                  !- Sun Exposure
-    NoWind,                                 !- Wind Exposure
-    ,                                       !- View Factor to Ground
-    ,                                       !- Number of Vertices
-    0, 2.09095001794528, 3.05,              !- X,Y,Z Vertex 1 {m}
-    0, 2.09095001794528, 0,                 !- X,Y,Z Vertex 2 {m}
-    4.18190003589056, 2.09095001794528, 0,  !- X,Y,Z Vertex 3 {m}
-    4.18190003589056, 2.09095001794528, 3.05; !- X,Y,Z Vertex 4 {m}
-    """
+
+    st = zone.face_attribute(fk, 'surface_type')
+    ct = zone.face_attribute(fk, 'construction')
+    ob = zone.face_attribute(fk, 'outside_boundary_condition')
+    if ob =='Adiabatic':
+        se = 'NoSun'
+        we = 'NoWind'
+    else:
+        se = 'SunExposed'
+        we = 'WindExposed'
 
 
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('BuildingSurface:Detailed,\n')
+    fh.write('{}_{},                    !- Name\n'.format(zone.name, fk))
+    fh.write('{},                       !- Surface Type\n'.format(st))
+    fh.write('{},                       !- Construction Name\n'.format(ct))
+    fh.write('{},                       !- Zone Name\n'.format(zone.name))
+    fh.write('{},                       !- Outside Boundary Condition\n'.format(ob))
+    fh.write(',                         !- Outside Boundary Condition Object\n')
+    fh.write('{},                       !- Sun Exposure\n'.format(se))
+    fh.write('{},                       !- Wind Exposure\n'.format(we))
+    fh.write(',                         !- View Factor to Ground\n')
+    fh.write(',                         !- Number of Vertices\n')
+
+    for vk in zone.face_vertices(fk):
+        x, y, z = zone.vertex_coordinates(vk)
+    fh.write('{}, {}, {},               !- X,Y,Z Vertex (m)\n'.format(x, y, z))
+    fh.write('\n')
+    fh.close()
 
 def write_building(building):
     fh = open(building.filepath, 'a')
@@ -91,3 +104,29 @@ def write_building(building):
     fh.write('\n')
     fh.close()
 
+def write_windows(building):
+    fh = open(building.filepath, 'a')
+    for wk in building.windows:
+        win = building.windows[wk]
+        con = win.construction
+        bsn = win.building_surface
+
+
+        fh.write('\n')
+        fh.write('FenestrationSurface:Detailed,\n')
+        fh.write('{},            !- Name\n'.format(win.name))
+        fh.write('Window,        !- Surface Type\n')
+        fh.write('{},            !- Construction Name\n'.format(con))
+        fh.write('{},            !- Building Surface Name\n'.format(bsn))
+        fh.write(',              !- Outside Boundary Condition Object\n')
+        fh.write(',              !- View Factor to Ground\n')
+        fh.write(',              !- Frame and Divider Name\n')
+        fh.write(',              !- Multiplier\n')
+        fh.write(',              !- Number of Vertices\n')
+        for x, y, z in win.nodes:
+            fh.write('{}, {}, {}, !- X,Y,Z Vertex (m)\n'.format(x, y, z))
+
+        fh.write('\n')
+
+    fh.write('\n')
+    fh.close()

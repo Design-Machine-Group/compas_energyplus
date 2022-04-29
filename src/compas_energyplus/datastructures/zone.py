@@ -9,29 +9,42 @@ __version__ = "0.1.0"
 import os
 from compas.datastructures import Mesh
 
-class Zone(Mesh):
+# TODO: Make custom object, use mesh only for surfaces
+
+class Zone(object):
+    def __init__(self):
+        self.name = 'Generic Zone'
+        self.surfaces = None
+
+
+
+class ZoneSurfaces(object):
     def __init__(self):
         super(Mesh, self).__init__()
 
         self.default_face_attributes.update({'name': None,
                                              'construction':None,
-                                             'adiabatic':False,
+                                             'surface_type': None,
+                                             'outside_boundary_condition': None,
                                              })
     
     def __str__(self):
-        return 'compas_energyplus Zone - {}'.format(self.name)
+        return 'compas_energyplus Zone Surfaces - {}'.format(self.name)
 
     def assign_zone_surface_attributes(self):
 
         self.face_attribute(0, 'Name', 'floor')
-        self.face_attribute(0, 'construction', 'floor')
-        self.face_attribute(0, 'adiabatic', True)
+        self.face_attribute(0, 'surface_type', 'Floor')
+        self.face_attribute(0, 'construction', 'Interior Floor')
+        self.face_attribute(0, 'outside_boundary_condition', 'Adiabatic')
 
         self.face_attribute(1, 'Name', 'ceiling')
-        self.face_attribute(1, 'construction', 'ceiling')
-        self.face_attribute(1, 'adiabatic', True)
+        self.face_attribute(1, 'surface_type', 'Ceiling')
+        self.face_attribute(0, 'construction', 'Interior Ceiling')
+        self.face_attribute(1, 'outside_boundary_condition', 'Adiabatic')
 
         self.faces_attribute('Name', 'wall', [2, 3, 4, 5])
-        self.faces_attribute('construction', 'wall', [2, 3, 4, 5])
-        self.faces_attribute('adiabatic', False, [2, 3, 4, 5])
+        self.faces_attribute('surface_type', 'Wall', [2, 3, 4, 5])
+        self.faces_attribute('construction', 'Exterior Wall', [2, 3, 4, 5])
+        self.faces_attribute('outside_boundary_condition', 'Outdoors', [2, 3, 4, 5])
 

@@ -27,12 +27,16 @@ class Building(object):
         self.solar_distribution = 'FullExteriorWithReflections'
 
         self.zones = {}
+        self.windows = {}
 
     def write_idf(self):
         write_idf(self)
 
     def add_zone(self, zone):
         self.zones[len(self.zones)] = zone
+    
+    def add_window(self, window):
+        self.windows[len(self.windows)] = window
 
 
     def analyze(self):
@@ -43,6 +47,7 @@ class Building(object):
 
 if __name__ == '__main__':
     from compas_energyplus.datastructures import Zone
+    from compas_energyplus.datastructures import Window
 
     data = compas_energyplus.DATA
     for i in range(50): print('')
@@ -50,20 +55,19 @@ if __name__ == '__main__':
     wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
     b = Building(filepath, wea)
 
-    z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'zones', 'zone1.json'))
+    z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
-    print(b.zones[0])
+    w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
+    b.add_window(w1)
 
     b.write_idf()
     # b.analyze()
-
-
-
+    
 
     # per zone ----------------------------
-    # building_surface
-    # fenestration_surface
+    # building_surface - DONE
+    # fenestration_surface - DONE
     # zone_control_thermostat, schedule, thermostat_time, 
     # zone_hvac_equipment connections, node lists, ideal loads air system
     # outdoor air

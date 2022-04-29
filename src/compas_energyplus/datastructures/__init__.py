@@ -8,3 +8,4 @@ __version__ = "0.1.0"
 
 from .building import *
 from .zone import *
+from .window import *

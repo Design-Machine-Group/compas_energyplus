@@ -38,4 +38,4 @@ faces = [f0, f1, f2, f3, f4, f5]
 zone = Zone.from_vertices_and_faces(vertices, faces)
 zone.name = 'zone1'
 zone.assign_zone_surface_attributes()
-zone.to_json(os.path.join(compas_energyplus.DATA, 'zones', 'zone1.json'))
+zone.to_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
