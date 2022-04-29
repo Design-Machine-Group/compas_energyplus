@@ -10,6 +10,8 @@ import os
 import compas_energyplus
 import subprocess
 
+from compas_energyplus.writer import write_idf
+
 #TODO: Volmesh?
 #TODO: Assembly?
 
@@ -27,40 +29,11 @@ class Building(object):
         self.zones = {}
 
     def write_idf(self):
-        fh = open(self.filepath, 'w')
-        fh.close()
-        self.write_pre()
-        self.write_building()
-        self.write_zones()
+        write_idf(self)
 
-    def write_pre(self):
-        fh = open(self.filepath, 'a')
-        fh.write('\n') 
-        fh.write('Version,\n')
-        fh.write(f'  {self.ep_version};{"":<30}!- Version Identifier\n')
-        fh.write('\n')
-        fh.write('Timestep,\n')
-        fh.write(f'  {self.num_timesteps};{"":<30}!- Number of Timesteps per Hour\n')  
-        fh.write('\n')           
-        fh.close()
+    def add_zone(self, zone):
+        self.zones[len(self.zones)] = zone
 
-    def write_zones(self):
-        for zkey in self.zones:
-            self.zones[zkey].write_zone()
-
-    def write_building(self):
-        fh = open(self.filepath, 'a')
-        fh.write('Building,\n')
-        fh.write(f'  {self.name},{"":<30}!- Name\n')
-        fh.write(f'  0,{"":<30} !- North Axis (deg)\n')
-        fh.write(f'  {self.terrain},{"":<30}!- Terrain\n')
-        fh.write(f'  ,{"":<30} !- Loads Convergence Tolerance Value (W)\n')
-        fh.write(f'  ,{"":<30} !- Temperature Convergence Tolerance Value (deltaC)\n')
-        fh.write(f'  {self.solar_distribution},{"":<30}!- Solar Distribution\n')
-        fh.write(f'  ,{"":<30} !- Maximum Number of Warmup Days\n')
-        fh.write(f'  ;{"":<30} !- Minimum Number of Warmup Days\n')
-        fh.write('\n')
-        fh.close()
 
     def analyze(self):
         idf = self.filepath
@@ -74,11 +47,43 @@ if __name__ == '__main__':
     data = compas_energyplus.DATA
     for i in range(50): print('')
     filepath = os.path.join(compas_energyplus.TEMP, 'idf_testing.idf')
-    wea = os.path.join(data, 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
+    wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
     b = Building(filepath, wea)
-    z1 = Zone('zone_1', filepath)
-    b.zones['zone1'] = z1
 
+    z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'zones', 'zone1.json'))
+    b.add_zone(z1)
+
+    print(b.zones[0])
 
     b.write_idf()
-    b.analyze()
+    # b.analyze()
+
+
+
+
+    # per zone ----------------------------
+    # building_surface
+    # fenestration_surface
+    # zone_control_thermostat, schedule, thermostat_time, 
+    # zone_hvac_equipment connections, node lists, ideal loads air system
+    # outdoor air
+    # zone supply air data
+    # -------------------------------------
+
+
+    # simulation control, heat balance, run period, shadow calc, sizing params
+
+    # materials, window_materials
+
+    # constructions
+
+    # schedule type limits, day interval
+
+    # zone list
+    # lights
+    # people
+    # electric equipment
+    # zone infiltration
+
+    # outputs
+    # daylighting controls

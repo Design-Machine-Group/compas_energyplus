@@ -7,27 +7,31 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 import os
+from compas.datastructures import Mesh
 
-class Zone(object):
-    def __init__(self, name, filepath):
-        self.name = name
-        self.filepath = filepath
+class Zone(Mesh):
+    def __init__(self):
+        super(Mesh, self).__init__()
+
+        self.default_face_attributes.update({'name': None,
+                                             'construction':None,
+                                             'adiabatic':False,
+                                             })
     
-    def write_zone(self):
-        fh = open(self.filepath, 'a')
-        fh.write('Zone,\n')
-        fh.write(f'  {self.name},{"":<30}!- Name\n')
-        fh.write(f'  0,{"":<30} !- Direction of Relative North (deg)\n')
-        fh.write(f'  0,{"":<30} !- X Origin (m)\n')
-        fh.write(f'  0,{"":<30} !- Y Origin (m)\n')
-        fh.write(f'  0,{"":<30} !- Z Origin (m)\n')
-        fh.write(f'  ,{"":<30} !- Type\n')
-        fh.write(f'  1,{"":<30} !- Multiplier\n')
-        fh.write(f'  ,{"":<30} !- Ceiling Height (m)\n')
-        fh.write(f'  ,{"":<30} !- Volume (m3)\n')
-        fh.write(f'  ,{"":<30} !- Floor Area (m2)\n')
-        fh.write(f'  ,{"":<30} !- Zone Inside Convection Algorithm\n')
-        fh.write(f'  ,{"":<30} !- Zone Outside Convection Algorithm\n')
-        fh.write(f'  Yes;{"":<30} !- Part of Total Floor Area\n')
-        fh.write('\n')
-        fh.close()
+    def __str__(self):
+        return 'compas_energyplus Zone - {}'.format(self.name)
+
+    def assign_zone_surface_attributes(self):
+
+        self.face_attribute(0, 'Name', 'floor')
+        self.face_attribute(0, 'construction', 'floor')
+        self.face_attribute(0, 'adiabatic', True)
+
+        self.face_attribute(1, 'Name', 'ceiling')
+        self.face_attribute(1, 'construction', 'ceiling')
+        self.face_attribute(1, 'adiabatic', True)
+
+        self.faces_attribute('Name', 'wall', [2, 3, 4, 5])
+        self.faces_attribute('construction', 'wall', [2, 3, 4, 5])
+        self.faces_attribute('adiabatic', False, [2, 3, 4, 5])
+
