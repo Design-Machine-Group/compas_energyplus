@@ -54,9 +54,18 @@ class Material(object):
         self.visible_absorptance = data.get('visible_absorptance') or {}
 
     @classmethod
+    def from_data(cls, data):
+        material = cls()
+        material.data = data
+        return material
+
+    @classmethod
     def from_json(cls, filepath):
         with open(filepath, 'r') as fp:
             data = json.load(fp)
         material = cls()
         material.data = data
         return material
+
+if __name__ == '__main__':
+    print('')

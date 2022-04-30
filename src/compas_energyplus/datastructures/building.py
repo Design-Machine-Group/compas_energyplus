@@ -7,13 +7,13 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 import os
+import json
 import compas_energyplus
 import subprocess
 
 from compas_energyplus.writer import write_idf
+from compas_energyplus.datastructures.material import Material
 
-#TODO: Volmesh?
-#TODO: Assembly?
 
 class Building(object):
     def __init__(self, filepath, weather):
@@ -42,6 +42,10 @@ class Building(object):
     def add_material(self, material):
         self.materials[len(self.materials)] = material
 
+    def add_materials_from_lib(self, lib):
+        for mk in lib:
+            mat = Material.from_data(lib[mk])
+            self.add_material(mat)
 
     def analyze(self):
         idf = self.filepath
@@ -64,6 +68,11 @@ if __name__ == '__main__':
 
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
+
+    filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library1.json')
+    with open(filepath, 'r') as fp:
+        lib = json.load(fp)
+    b.add_materials_from_lib(lib)
 
     b.write_idf()
     # b.analyze()

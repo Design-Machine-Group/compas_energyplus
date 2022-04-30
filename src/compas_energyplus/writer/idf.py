@@ -14,6 +14,7 @@ def write_idf(building):
     write_building(building)
     write_zones(building)
     write_windows(building)
+    write_materials(building)
 
 def write_pre(building):
     fh = open(building.filepath, 'a')
@@ -32,6 +33,26 @@ def write_zones(building):
         write_zone(building, zone)
         write_zone_surfaces(building, zone)
         write_zone_thermo_schedule(building, zone)
+
+def write_materials(building):
+    fh = open(building.filepath, 'a')
+
+    for mk in building.materials:
+        mat = building.materials[mk]
+        fh.write('\n')
+        fh.write('Material,\n')
+        fh.write('  {},     !- Name\n'.format(mat.name))
+        fh.write('  {},     !- Roughness\n'.format(mat.roughness))
+        fh.write('  {},     !- Thickness (m)\n'.format(mat.thickness))
+        fh.write('  {},     !- Conductivity (W/m-K)\n'.format(mat.conductivity))
+        fh.write('  {},     !- Density (kg/m3)\n'.format(mat.density))
+        fh.write('  {},     !- Specific Heat (J/kg-K)\n'.format(mat.specific_heat))    
+        fh.write('  {},     !- Thermal Absorptance\n'.format(mat.thermal_absorptance))
+        fh.write('  {},     !- Solar Absorptance\n'.format(mat.solar_absorptance))
+        fh.write('  {};     !- Visible Absorptance\n'.format(mat.visible_absorptance))
+        fh.write('\n')
+    fh.write('\n')
+    fh.close()
 
 def write_zone(building, zone):
     fh = open(building.filepath, 'a')
