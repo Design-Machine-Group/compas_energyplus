@@ -28,6 +28,7 @@ class Building(object):
 
         self.zones = {}
         self.windows = {}
+        self.materials = {}
 
     def write_idf(self):
         write_idf(self)
@@ -37,6 +38,9 @@ class Building(object):
     
     def add_window(self, window):
         self.windows[len(self.windows)] = window
+
+    def add_material(self, material):
+        self.materials[len(self.materials)] = material
 
 
     def analyze(self):
@@ -63,12 +67,12 @@ if __name__ == '__main__':
 
     b.write_idf()
     # b.analyze()
-    
+
 
     # per zone ----------------------------
     # building_surface - DONE
     # fenestration_surface - DONE
-    # zone_control_thermostat, schedule, thermostat_time, 
+    # zone_control_thermostat, schedule, thermostat_time, - DONE?
     # zone_hvac_equipment connections, node lists, ideal loads air system
     # outdoor air
     # zone supply air data

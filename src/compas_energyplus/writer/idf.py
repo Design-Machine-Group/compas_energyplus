@@ -31,6 +31,7 @@ def write_zones(building):
         zone = building.zones[zkey]
         write_zone(building, zone)
         write_zone_surfaces(building, zone)
+        write_zone_thermo_schedule(building, zone)
 
 def write_zone(building, zone):
     fh = open(building.filepath, 'a')
@@ -53,15 +54,15 @@ def write_zone(building, zone):
 
 def write_zone_surfaces(building, zone):
     fh = open(building.filepath, 'a')
-    for fk in zone.faces():
+    for fk in zone.surfaces.faces():
         write_building_surface(building, zone, fk)
     fh.close()
 
 def write_building_surface(building, zone, fk):
 
-    st = zone.face_attribute(fk, 'surface_type')
-    ct = zone.face_attribute(fk, 'construction')
-    ob = zone.face_attribute(fk, 'outside_boundary_condition')
+    st = zone.surfaces.face_attribute(fk, 'surface_type')
+    ct = zone.surfaces.face_attribute(fk, 'construction')
+    ob = zone.surfaces.face_attribute(fk, 'outside_boundary_condition')
     if ob =='Adiabatic':
         se = 'NoSun'
         we = 'NoWind'
@@ -84,8 +85,8 @@ def write_building_surface(building, zone, fk):
     fh.write(',                         !- View Factor to Ground\n')
     fh.write(',                         !- Number of Vertices\n')
 
-    for vk in zone.face_vertices(fk):
-        x, y, z = zone.vertex_coordinates(vk)
+    for vk in zone.surfaces.face_vertices(fk):
+        x, y, z = zone.surfaces.vertex_coordinates(vk)
     fh.write('{}, {}, {},               !- X,Y,Z Vertex (m)\n'.format(x, y, z))
     fh.write('\n')
     fh.close()
@@ -111,7 +112,6 @@ def write_windows(building):
         con = win.construction
         bsn = win.building_surface
 
-
         fh.write('\n')
         fh.write('FenestrationSurface:Detailed,\n')
         fh.write('{},            !- Name\n'.format(win.name))
@@ -125,8 +125,39 @@ def write_windows(building):
         fh.write(',              !- Number of Vertices\n')
         for x, y, z in win.nodes:
             fh.write('{}, {}, {}, !- X,Y,Z Vertex (m)\n'.format(x, y, z))
-
         fh.write('\n')
+    fh.write('\n')
+    fh.close()
 
+def write_zone_thermo_schedule(building, zone):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('ZoneControl:Thermostat,\n')
+    fh.write('  {} Thermostat,         !- Name\n'.format(zone.name))
+    fh.write('  {},                    !- Zone or ZoneList Name\n'.format(zone.name))
+    fh.write('  {} Thermostat Schedule, !- Control Type Schedule Name\n'.format(zone.name))
+    fh.write('  ThermostatSetpoint:DualSetpoint,        !- Control 1 Object Type\n')
+    fh.write('  Thermostat Setpoint Dual Setpoint 1,    !- Control 1 Name\n')
+    fh.write('  ,                                       !- Control 2 Object Type\n')
+    fh.write('  ,                                       !- Control 2 Name\n')
+    fh.write('  ,                                       !- Control 3 Object Type\n')
+    fh.write('  ,                                       !- Control 3 Name\n')
+    fh.write('  ,                                       !- Control 4 Object Type\n')
+    fh.write('  ,                                       !- Control 4 Name\n')
+    fh.write('  0;                                      !- Temperature Difference Between Cutout And Setpoint (deltaC)\n')
+    fh.write('\n')
+    fh.write('Schedule:Compact,\n')
+    fh.write('  {} Thermostat Schedule, !- Name\n'.format(zone.name))
+    fh.write('  {} Thermostat Schedule Type Limits, !- Schedule Type Limits Name\n'.format(zone.name))
+    fh.write('  Through: 12/31,                         !- Field 1\n')
+    fh.write('  For: AllDays,                           !- Field 2\n')
+    fh.write('  Until: 24:00,                           !- Field 3\n')
+    fh.write('  4;                                      !- Field 4\n')
+    fh.write('\n')
+    fh.write('ScheduleTypeLimits,\n')
+    fh.write('  {} Thermostat Schedule Type Limits, !- Name\n'.format(zone.name))
+    fh.write('  0,                                      !- Lower Limit Value (BasedOnField A3)\n')
+    fh.write('  4,                                      !- Upper Limit Value (BasedOnField A3)\n')
+    fh.write('  DISCRETE;                               !- Numeric Type\n')
     fh.write('\n')
     fh.close()

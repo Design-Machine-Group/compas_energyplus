@@ -14,17 +14,43 @@ from compas.datastructures import Mesh
 
 class Zone(object):
     def __init__(self):
-        self.name = 'Generic Zone'
+        self.name =  ''
         self.surfaces = None
 
-    def to_json(self):
-        pass
+    def to_json(self, filepath):
+        with open(filepath, 'w+') as fp:
+            json.dump(self.data, fp)
 
-    def from_json(self):
-        pass
+    @property
+    def data(self):
+        data = {'name'                  : self.name,
+                'surfaces'              : self.surfaces.to_data(),
+                }
+        return data
+    
+    @data.setter
+    def data(self, data):
+        surfaces = data.get('surfaces') or {}
+        self.name               = data.get('name') or {}
+        self.surfaces      = ZoneSurfaces.from_data(surfaces)
 
 
-class ZoneSurfaces(object):
+    def add_surfaces(self, mesh):
+        self.surfaces = ZoneSurfaces.from_data(mesh.data)
+        self.surfaces.assign_zone_surface_attributes()
+
+
+    @classmethod
+    def from_json(cls, filepath):
+        with open(filepath, 'r') as fp:
+            data = json.load(fp)
+        zone = cls()
+        zone.data = data
+        return zone
+
+
+
+class ZoneSurfaces(Mesh):
     def __init__(self):
         super(Mesh, self).__init__()
 

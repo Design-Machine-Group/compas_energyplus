@@ -8,6 +8,7 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 import os
+from compas.datastructures import Mesh
 from compas_energyplus.datastructures import Zone
 
 for i in range(50): print('')
@@ -35,7 +36,9 @@ f5 = [3, 0, 4, 7]
 vertices = [v0, v1, v2, v3, v4, v5, v6, v7]
 faces = [f0, f1, f2, f3, f4, f5]
 
-zone = Zone.from_vertices_and_faces(vertices, faces)
-zone.name = 'zone1'
-zone.assign_zone_surface_attributes()
+name = 'zone1'
+mesh = Mesh.from_vertices_and_faces(vertices, faces)
+zone = Zone()
+zone.name = name
+zone.add_surfaces(mesh)
 zone.to_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
