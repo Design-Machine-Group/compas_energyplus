@@ -197,14 +197,16 @@ def write_constructions(building):
     fh = open(building.filepath, 'a')
     fh.write('\n')
     for ck in building.constructions:
+        name = building.constructions[ck].name
         layers = building.constructions[ck].layers
-        fh.write('Construction,')
-        for i, layer in layers:
-            if i == len(layers):
+        fh.write('Construction,\n')
+        fh.write('{},\t\t\t\t\t!- Name\n'.format(name))
+        for i, layer in enumerate(layers):
+            if i == len(layers) - 1:
                 sep = ';'
             else:
                 sep = ','
-            fh.write('{}{}       !- Layer {}\n'.format(layer, sep, i))
-
+            fh.write('{}{}\t\t\t\t\t!- Layer {}\n'.format(layer, sep, i))
+        fh.write('\n')
     fh.write('\n')
     fh.close()

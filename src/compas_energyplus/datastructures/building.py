@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from compas_energyplus.datastructures.construction import Construction
+
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
 __license__ = "MIT License"
@@ -13,7 +15,7 @@ import subprocess
 
 from compas_energyplus.writer import write_idf
 from compas_energyplus.datastructures.material import Material
-
+from compas_energyplus.datastructures.construction import Construction
 
 class Building(object):
     def __init__(self, filepath, weather):
@@ -51,6 +53,14 @@ class Building(object):
             mat = Material.from_data(lib[mk])
             self.add_material(mat)
 
+    def add_constructions_from_lib(self, lib):
+        for ck in lib:
+            con = Construction.from_data(lib[ck])
+            self.add_construction(con)
+
+    def add_construction(self, construction):
+        self.constructions[len(self.constructions)] = construction
+
     def analyze(self):
         idf = self.filepath
         eplus = 'energyplus'
@@ -77,6 +87,12 @@ if __name__ == '__main__':
     with open(filepath, 'r') as fp:
         lib = json.load(fp)
     b.add_materials_from_lib(lib)
+
+    filepath = os.path.join(compas_energyplus.DATA, 'constructions', 'construction_library1.json')
+    with open(filepath, 'r') as fp:
+        lib = json.load(fp)
+    b.add_constructions_from_lib(lib)
+
 
     b.write_idf()
     # b.analyze()
