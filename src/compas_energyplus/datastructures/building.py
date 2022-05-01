@@ -29,6 +29,10 @@ class Building(object):
         self.zones = {}
         self.windows = {}
         self.materials = {}
+        self.masterials_nomass = {}
+        self.window_materials_gas = {}
+        self.window_materials_glazing = {}
+        self.constructions = {}
 
     def write_idf(self):
         write_idf(self)

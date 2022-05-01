@@ -15,6 +15,9 @@ def write_idf(building):
     write_zones(building)
     write_windows(building)
     write_materials(building)
+    write_materials_nomass(building)
+    write_window_materials(building)
+    write_constructions(building)
 
 def write_pre(building):
     fh = open(building.filepath, 'a')
@@ -180,5 +183,28 @@ def write_zone_thermo_schedule(building, zone):
     fh.write('  0,                                      !- Lower Limit Value (BasedOnField A3)\n')
     fh.write('  4,                                      !- Upper Limit Value (BasedOnField A3)\n')
     fh.write('  DISCRETE;                               !- Numeric Type\n')
+    fh.write('\n')
+    fh.close()
+
+
+def write_materials_nomass(building):
+    pass
+
+def write_window_materials(building):
+    pass
+
+def write_constructions(building):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    for ck in building.constructions:
+        layers = building.constructions[ck].layers
+        fh.write('Construction,')
+        for i, layer in layers:
+            if i == len(layers):
+                sep = ';'
+            else:
+                sep = ','
+            fh.write('{}{}       !- Layer {}\n'.format(layer, sep, i))
+
     fh.write('\n')
     fh.close()
