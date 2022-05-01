@@ -67,16 +67,16 @@ class ZoneSurfaces(Mesh):
 
         self.face_attribute(0, 'Name', 'floor')
         self.face_attribute(0, 'surface_type', 'Floor')
-        self.face_attribute(0, 'construction', 'Interior Floor')
+        self.face_attribute(0, 'construction', 'FLOOR')
         self.face_attribute(0, 'outside_boundary_condition', 'Adiabatic')
 
         self.face_attribute(1, 'Name', 'ceiling')
         self.face_attribute(1, 'surface_type', 'Ceiling')
-        self.face_attribute(0, 'construction', 'Interior Ceiling')
+        self.face_attribute(1, 'construction', 'ROOF31')
         self.face_attribute(1, 'outside_boundary_condition', 'Adiabatic')
 
         self.faces_attribute('Name', 'wall', [2, 3, 4, 5])
         self.faces_attribute('surface_type', 'Wall', [2, 3, 4, 5])
-        self.faces_attribute('construction', 'Exterior Wall', [2, 3, 4, 5])
+        self.faces_attribute('construction', 'R13WALL', [2, 3, 4, 5])
         self.faces_attribute('outside_boundary_condition', 'Outdoors', [2, 3, 4, 5])
 

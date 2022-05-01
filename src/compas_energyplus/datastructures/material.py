@@ -12,7 +12,8 @@ import json
 
 class Material(object):
     def __init__(self):
-        self.name                       = 'Material'                   
+        self.__type__                   = 'Material'
+        self.name                       = 'Material'
         self.roughness                  = None
         self.thickness                  = None
         self.conductivity               = None
@@ -29,7 +30,8 @@ class Material(object):
 
     @property
     def data(self):
-        data = {'name':                 self.name,
+        data = {'__type__':             self.__type__,
+                'name':                 self.name,
                 'roughness':            self.roughness,
                 'thickness':            self.thickness,
                 'conductivity':         self.conductivity,
@@ -43,6 +45,7 @@ class Material(object):
     
     @data.setter
     def data(self, data):
+        self.__type__            = data.get('__type__') or {}
         self.name                = data.get('name') or {}
         self.roughness           = data.get('roughness') or {}
         self.thickness           = data.get('thickness') or {}
@@ -70,7 +73,8 @@ class Material(object):
 
 class MaterialNoMass(object):
     def __init__(self):
-        self.name                       = 'MaterialNoMass'                   
+        self.__type__                   = 'MaterialNoMass'
+        self.name                       = 'MaterialNoMass'
         self.roughness                  = None
         self.thermal_resistance         = None
         self.thermal_absorptance        = None
@@ -84,7 +88,8 @@ class MaterialNoMass(object):
 
     @property
     def data(self):
-        data = {'name'                  : self.name,
+        data = {'__type__'              : self.__type__,
+                'name'                  : self.name,
                 'roughness'             : self.roughness,
                 'thermal_resistance'    : self.thermal_resistance,
                 'thermal_absorptance'   : self.thermal_absorptance,
@@ -96,6 +101,7 @@ class MaterialNoMass(object):
     
     @data.setter
     def data(self, data):
+        self.__type__            = data.get('__type__') or {}
         self.name                = data.get('name') or {}
         self.roughness           = data.get('roughness') or {}
         self.thermal_resistance  = data.get('thermal_resistance') or {}

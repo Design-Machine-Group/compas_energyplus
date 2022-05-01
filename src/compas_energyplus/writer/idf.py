@@ -12,12 +12,16 @@ def write_idf(building):
     fh.close()
     write_pre(building)
     write_building(building)
+    write_global_vars(building)
+    write_run_period(building)
     write_zones(building)
-    write_windows(building)
     write_materials(building)
-    write_materials_nomass(building)
-    write_window_materials(building)
     write_constructions(building)
+
+    # write_windows(building)
+    # write_window_materials(building)
+    
+    write_output_items(building)
 
 def write_pre(building):
     fh = open(building.filepath, 'a')
@@ -30,32 +34,58 @@ def write_pre(building):
     fh.write('\n')           
     fh.close()
 
+def write_building(building):
+    fh = open(building.filepath, 'a')
+    fh.write('Building,\n')
+    fh.write(f'  {building.name},{"":<40}!- Name\n')
+    fh.write(f'  0,{"":<40} !- North Axis (deg)\n')
+    fh.write(f'  {building.terrain},{"":<40}!- Terrain\n')
+    fh.write(f'  ,{"":<40} !- Loads Convergence Tolerance Value (W)\n')
+    fh.write(f'  ,{"":<40} !- Temperature Convergence Tolerance Value (deltaC)\n')
+    fh.write(f'  {building.solar_distribution},{"":<40}!- Solar Distribution\n')
+    fh.write(f'  ,{"":<40} !- Maximum Number of Warmup Days\n')
+    fh.write(f'  ;{"":<40} !- Minimum Number of Warmup Days\n')
+    fh.write('\n')
+    fh.close()
+
+def write_global_vars(building):
+
+    # global geometric rules - - - - - -
+    fh = open(building.filepath, 'a')
+    fh.write('\n') 
+    fh.write('GlobalGeometryRules,\n')
+    fh.write(f'  UpperLeftCorner,{"":<30}!- Starting Vertex Position\n')
+    fh.write(f'  CounterClockWise,{"":<30}!- Vertex Entry Direction\n')
+    fh.write(f'  World;{"":<30}!- Coordinate System\n')
+    fh.write('\n')           
+    fh.close()
+
+def write_run_period(building):
+    fh = open(building.filepath, 'a')
+    fh.write('  RunPeriod,\n')
+    fh.write('    Run Period 1,            !- Name\n')
+    fh.write('    1,                       !- Begin Month\n')
+    fh.write('    1,                       !- Begin Day of Month\n')
+    fh.write('    ,                        !- Begin Year\n')
+    fh.write('    12,                      !- End Month\n')
+    fh.write('    31,                      !- End Day of Month\n')
+    fh.write('    ,                        !- End Year\n')
+    fh.write('    Tuesday,                 !- Day of Week for Start Day\n')
+    fh.write('    Yes,                     !- Use Weather File Holidays and Special Days\n')
+    fh.write('    Yes,                     !- Use Weather File Daylight Saving Period\n')
+    fh.write('    No,                      !- Apply Weekend Holiday Rule\n')
+    fh.write('    Yes,                     !- Use Weather File Rain Indicators\n')
+    fh.write('    Yes;                     !- Use Weather File Snow Indicators\n')
+    fh.write('\n')
+    fh.close()
+
+
 def write_zones(building):
     for zkey in building.zones:
         zone = building.zones[zkey]
         write_zone(building, zone)
         write_zone_surfaces(building, zone)
-        write_zone_thermo_schedule(building, zone)
-
-def write_materials(building):
-    fh = open(building.filepath, 'a')
-
-    for mk in building.materials:
-        mat = building.materials[mk]
-        fh.write('\n')
-        fh.write('Material,\n')
-        fh.write('  {},     !- Name\n'.format(mat.name))
-        fh.write('  {},     !- Roughness\n'.format(mat.roughness))
-        fh.write('  {},     !- Thickness (m)\n'.format(mat.thickness))
-        fh.write('  {},     !- Conductivity (W/m-K)\n'.format(mat.conductivity))
-        fh.write('  {},     !- Density (kg/m3)\n'.format(mat.density))
-        fh.write('  {},     !- Specific Heat (J/kg-K)\n'.format(mat.specific_heat))    
-        fh.write('  {},     !- Thermal Absorptance\n'.format(mat.thermal_absorptance))
-        fh.write('  {},     !- Solar Absorptance\n'.format(mat.solar_absorptance))
-        fh.write('  {};     !- Visible Absorptance\n'.format(mat.visible_absorptance))
-        fh.write('\n')
-    fh.write('\n')
-    fh.close()
+        # write_zone_thermo_schedule(building, zone)
 
 def write_zone(building, zone):
     fh = open(building.filepath, 'a')
@@ -76,6 +106,45 @@ def write_zone(building, zone):
     fh.write('\n')
     fh.close()
 
+def write_materials(building):
+    for mk in building.materials:
+        mat = building.materials[mk]
+        if mat.__type__ == 'Material':
+            write_material(building, mat)
+        elif mat.__type__ == 'MaterialNoMass':
+            write_materials_nomass(building, mat)
+
+def write_materials_nomass(building, mat):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('Material:NoMass,\n')
+    fh.write('  {},     !- Name\n'.format(mat.name))
+    fh.write('  {},     !- Roughness\n'.format(mat.roughness))
+    fh.write('  {},     !- Thermal Resistance (m2-K/W)\n'.format(mat.thermal_resistance))
+    fh.write('  {},     !- Thermal Absorptance\n'.format(mat.thermal_absorptance))
+    fh.write('  {},     !- Solar Absorptance\n'.format(mat.solar_absorptance))
+    fh.write('  {};     !- Visible Absorptance\n'.format(mat.visible_absorptance))
+    fh.write('\n')
+    fh.write('\n')
+    fh.close()
+
+def write_material(building, mat):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('Material,\n')
+    fh.write('  {},     !- Name\n'.format(mat.name))
+    fh.write('  {},     !- Roughness\n'.format(mat.roughness))
+    fh.write('  {},     !- Thickness (m)\n'.format(mat.thickness))
+    fh.write('  {},     !- Conductivity (W/m-K)\n'.format(mat.conductivity))
+    fh.write('  {},     !- Density (kg/m3)\n'.format(mat.density))
+    fh.write('  {},     !- Specific Heat (J/kg-K)\n'.format(mat.specific_heat))    
+    fh.write('  {},     !- Thermal Absorptance\n'.format(mat.thermal_absorptance))
+    fh.write('  {},     !- Solar Absorptance\n'.format(mat.solar_absorptance))
+    fh.write('  {};     !- Visible Absorptance\n'.format(mat.visible_absorptance))
+    fh.write('\n')
+    fh.write('\n')
+    fh.close()
+
 def write_zone_surfaces(building, zone):
     fh = open(building.filepath, 'a')
     for fk in zone.surfaces.faces():
@@ -87,6 +156,7 @@ def write_building_surface(building, zone, fk):
     st = zone.surfaces.face_attribute(fk, 'surface_type')
     ct = zone.surfaces.face_attribute(fk, 'construction')
     ob = zone.surfaces.face_attribute(fk, 'outside_boundary_condition')
+
     if ob =='Adiabatic':
         se = 'NoSun'
         we = 'NoWind'
@@ -94,38 +164,30 @@ def write_building_surface(building, zone, fk):
         se = 'SunExposed'
         we = 'WindExposed'
 
+    num_vert = len(zone.surfaces.face_vertices(fk))
 
     fh = open(building.filepath, 'a')
     fh.write('\n')
     fh.write('BuildingSurface:Detailed,\n')
-    fh.write('{}_{},                    !- Name\n'.format(zone.name, fk))
-    fh.write('{},                       !- Surface Type\n'.format(st))
-    fh.write('{},                       !- Construction Name\n'.format(ct))
-    fh.write('{},                       !- Zone Name\n'.format(zone.name))
-    fh.write('{},                       !- Outside Boundary Condition\n'.format(ob))
-    fh.write(',                         !- Outside Boundary Condition Object\n')
-    fh.write('{},                       !- Sun Exposure\n'.format(se))
-    fh.write('{},                       !- Wind Exposure\n'.format(we))
-    fh.write(',                         !- View Factor to Ground\n')
-    fh.write(',                         !- Number of Vertices\n')
+    fh.write('  {}_{},                    !- Name\n'.format(zone.name, fk))
+    fh.write('  {},                       !- Surface Type\n'.format(st))
+    fh.write('  {},                       !- Construction Name\n'.format(ct))
+    fh.write('  {},                       !- Zone Name\n'.format(zone.name))
+    fh.write('  ,                         !- Space Name\n')
+    fh.write('  {},                       !- Outside Boundary Condition\n'.format(ob))
+    fh.write('  ,                         !- Outside Boundary Condition Object\n')
+    fh.write('  {},                       !- Sun Exposure\n'.format(se))
+    fh.write('  {},                       !- Wind Exposure\n'.format(we))
+    fh.write('  0.0,                      !- View Factor to Ground\n')
+    fh.write('  {},                       !- Number of Vertices\n'.format(num_vert))
 
-    for vk in zone.surfaces.face_vertices(fk):
+    for i, vk in enumerate(zone.surfaces.face_vertices(fk)):
         x, y, z = zone.surfaces.vertex_coordinates(vk)
-    fh.write('{}, {}, {},               !- X,Y,Z Vertex (m)\n'.format(x, y, z))
-    fh.write('\n')
-    fh.close()
-
-def write_building(building):
-    fh = open(building.filepath, 'a')
-    fh.write('Building,\n')
-    fh.write(f'  {building.name},{"":<30}!- Name\n')
-    fh.write(f'  0,{"":<30} !- North Axis (deg)\n')
-    fh.write(f'  {building.terrain},{"":<30}!- Terrain\n')
-    fh.write(f'  ,{"":<30} !- Loads Convergence Tolerance Value (W)\n')
-    fh.write(f'  ,{"":<30} !- Temperature Convergence Tolerance Value (deltaC)\n')
-    fh.write(f'  {building.solar_distribution},{"":<30}!- Solar Distribution\n')
-    fh.write(f'  ,{"":<30} !- Maximum Number of Warmup Days\n')
-    fh.write(f'  ;{"":<30} !- Minimum Number of Warmup Days\n')
+        if i == num_vert - 1:
+            sep = ';'
+        else:
+            sep = ','
+        fh.write('  {:.3f}, {:.3f}, {:.3f}{}\t\t\t\t\t!- X,Y,Z Vertex {}\n'.format(x, y, z, sep, i))
     fh.write('\n')
     fh.close()
 
@@ -186,10 +248,6 @@ def write_zone_thermo_schedule(building, zone):
     fh.write('\n')
     fh.close()
 
-
-def write_materials_nomass(building):
-    pass
-
 def write_window_materials(building):
     pass
 
@@ -210,3 +268,44 @@ def write_constructions(building):
         fh.write('\n')
     fh.write('\n')
     fh.close()
+
+def write_output_items(building):
+    fh = open(building.filepath, 'a')
+    fh.write('Zone,\n')
+    fh.write('  Output:Variable,*,Zone Mean Air Temperature,timestep;')
+    fh.write('\n')
+    fh.close()
+    
+if __name__ == '__main__':
+    pass
+    """
+    version - x
+    timesptep - x
+    building - x
+    global geometry rules - x
+    run period - x 
+    zone - x
+    building surface: detailed - x
+    material - x
+    construction - x
+    material no mass - x 
+
+    output variables
+
+
+    sizing period design day heating
+    sizing period design day cooling
+    heat balance algo
+    surface convection algo inside
+    surface convection algo outside
+    simulation control
+    site:location
+
+    construction window data file THIS SHOULD BE OPTIONAL
+    site ground temperature building surface
+    schedule type limits
+    
+
+    fenestration surface detailed
+    output variables
+    """

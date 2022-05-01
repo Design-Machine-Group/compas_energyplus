@@ -15,6 +15,7 @@ import subprocess
 
 from compas_energyplus.writer import write_idf
 from compas_energyplus.datastructures.material import Material
+from compas_energyplus.datastructures.material import MaterialNoMass
 from compas_energyplus.datastructures.construction import Construction
 
 class Building(object):
@@ -23,15 +24,14 @@ class Building(object):
         self.weather = weather
 
         self.name = 'Building'
-        self.ep_version = '9.5'
-        self.num_timesteps = 6
+        self.ep_version = '9.6'
+        self.num_timesteps = 4
         self.terrain = 'City'
         self.solar_distribution = 'FullExteriorWithReflections'
 
         self.zones = {}
         self.windows = {}
         self.materials = {}
-        self.masterials_nomass = {}
         self.window_materials_gas = {}
         self.window_materials_glazing = {}
         self.constructions = {}
@@ -50,7 +50,13 @@ class Building(object):
 
     def add_materials_from_lib(self, lib):
         for mk in lib:
-            mat = Material.from_data(lib[mk])
+            t = lib[mk]['__type__']
+            if t == 'Material':
+                mat = Material.from_data(lib[mk])
+            elif t == 'MaterialNoMass':
+                mat = MaterialNoMass.from_data(lib[mk])
+            else:
+                continue
             self.add_material(mat)
 
     def add_constructions_from_lib(self, lib):
@@ -61,66 +67,46 @@ class Building(object):
     def add_construction(self, construction):
         self.constructions[len(self.constructions)] = construction
 
-    def analyze(self):
+    def analyze(self, exe=None):
         idf = self.filepath
-        eplus = 'energyplus'
+        if not exe:
+            eplus = 'energyplus'
         out = os.path.join(compas_energyplus.TEMP, 'eplus_output')
-        subprocess.call([eplus, '-w', self.weather,'--output-directory', out, idf])
+        print(exe, '-w', self.weather,'--output-directory', out, idf)
+        subprocess.call([exe, '-w', self.weather,'--output-directory', out, idf])
 
 if __name__ == '__main__':
     from compas_energyplus.datastructures import Zone
     from compas_energyplus.datastructures import Window
 
-    data = compas_energyplus.DATA
     for i in range(50): print('')
+
+    data = compas_energyplus.DATA
+    
     filepath = os.path.join(compas_energyplus.TEMP, 'idf_testing.idf')
     wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
+    # wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
     b = Building(filepath, wea)
 
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
-    w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
-    b.add_window(w1)
+    # w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
+    # b.add_window(w1)
 
-    filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library1.json')
+    filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library_simple.json')
     with open(filepath, 'r') as fp:
         lib = json.load(fp)
     b.add_materials_from_lib(lib)
 
-    filepath = os.path.join(compas_energyplus.DATA, 'constructions', 'construction_library1.json')
+    filepath = os.path.join(compas_energyplus.DATA, 'constructions', 'construction_library_simple.json')
     with open(filepath, 'r') as fp:
         lib = json.load(fp)
     b.add_constructions_from_lib(lib)
 
 
     b.write_idf()
-    # b.analyze()
+    b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
 
 
-    # per zone ----------------------------
-    # building_surface - DONE
-    # fenestration_surface - DONE
-    # zone_control_thermostat, schedule, thermostat_time, - DONE?
-    # zone_hvac_equipment connections, node lists, ideal loads air system
-    # outdoor air
-    # zone supply air data
-    # -------------------------------------
-
-
-    # simulation control, heat balance, run period, shadow calc, sizing params
-
-    # materials, window_materials
-
-    # constructions
-
-    # schedule type limits, day interval
-
-    # zone list
-    # lights
-    # people
-    # electric equipment
-    # zone infiltration
-
-    # outputs
-    # daylighting controls
+    
