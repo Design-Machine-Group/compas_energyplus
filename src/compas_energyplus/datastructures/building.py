@@ -25,7 +25,7 @@ class Building(object):
 
         self.name = 'Building'
         self.ep_version = '9.6'
-        self.num_timesteps = 4
+        self.num_timesteps = 1
         self.terrain = 'City'
         self.solar_distribution = 'FullExteriorWithReflections'
 

@@ -271,11 +271,16 @@ def write_constructions(building):
 
 def write_output_items(building):
     fh = open(building.filepath, 'a')
-    fh.write('Zone,\n')
-    fh.write('  Output:Variable,*,Zone Mean Air Temperature,timestep;')
+    fh.write('  Output:Variable,*,Zone Mean Air Temperature,timestep;\n')
+    fh.write('\n')
+    fh.write('  OutputControl:Table:Style,\n')
+    fh.write('    HTML;                    !- Column Separator\n')
+    fh.write('\n')
+    fh.write('  Output:Table:SummaryReports,\n')
+    fh.write('    AllSummary;              !- Report 1 Name\n')
     fh.write('\n')
     fh.close()
-    
+
 if __name__ == '__main__':
     pass
     """
