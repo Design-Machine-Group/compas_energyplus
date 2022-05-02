@@ -108,7 +108,7 @@ class Building(object):
         data = {i: {'temp':temps[i], 'time':times[i]} for i in range(len(times))}
         df = pd.DataFrame.from_dict(data, orient='index')
         # fig = px.line(x=range(len(temps)), y=temps)
-        fig = px.scatter(df, x='time', y='temp')
+        fig = px.scatter(df, x='time', y='temp', hover_data={"time": "|%B %d, %H, %Y"})
         fig.update_xaxes(dtick="M1",tickformat="%b")
         fig.show()
 
