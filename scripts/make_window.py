@@ -19,7 +19,6 @@ v3 = [0, 0, h_ * 2]
 win = Window()
 win.name = 'w1'
 win.nodes = [v0, v1, v2, v3]
-win.building_surface = 'zone1_0'
-win.construction = 'window_construction'
+win.building_surface = 'zone1_2'
+win.construction = 'Generic Double Pane'
 win.to_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
-

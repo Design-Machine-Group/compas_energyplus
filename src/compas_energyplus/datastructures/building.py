@@ -16,6 +16,8 @@ import subprocess
 from compas_energyplus.writer import write_idf
 from compas_energyplus.datastructures.material import Material
 from compas_energyplus.datastructures.material import MaterialNoMass
+from compas_energyplus.datastructures.material import WindowMaterialGas
+from compas_energyplus.datastructures.material import WindowMaterialGlazing
 from compas_energyplus.datastructures.construction import Construction
 
 class Building(object):
@@ -56,6 +58,10 @@ class Building(object):
                 mat = Material.from_data(lib[mk])
             elif t == 'MaterialNoMass':
                 mat = MaterialNoMass.from_data(lib[mk])
+            elif t == 'WindowMaterialGlazing':
+                mat = WindowMaterialGlazing.from_data(lib[mk])
+            elif t =='WindowMaterialGas':
+                mat = WindowMaterialGas.from_data(lib[mk])
             else:
                 continue
             self.add_material(mat)
@@ -105,11 +111,20 @@ class Building(object):
         times = [datetime(2022, m, d, h) for h, d, m in self.result_times]
         temps = b.mean_air_temperatures
 
-        data = {i: {'temp':temps[i], 'time':times[i]} for i in range(len(times))}
+        # data = {i: {'temp':temps[i], 'time':times[i]} for i in range(len(times))}
+        data = {}
+        for i in range(len(times)):
+            data[i] = {'temp': temps[i],
+                       'time': times[i],
+                       'hour': self.result_times[i][0],
+                       'day': self.result_times[i][1],
+                       'month': self.result_times[i][2],
+                      }
+
         df = pd.DataFrame.from_dict(data, orient='index')
         # fig = px.line(x=range(len(temps)), y=temps)
         fig = px.scatter(df, x='time', y='temp', hover_data={"time": "|%B %d, %H, %Y"}, color='temp')
-        fig.update_xaxes(dtick="M1",tickformat="%b")
+        fig.update_xaxes(dtick="M1",tickformat="%b", ticklabelmode="period")
         fig.show()
 
 
@@ -122,15 +137,15 @@ if __name__ == '__main__':
     data = compas_energyplus.DATA
     
     filepath = os.path.join(compas_energyplus.TEMP, 'idf_testing.idf')
-    wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
-    # wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
+    # wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
+    wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
     b = Building(filepath, wea)
 
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
-    # w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
-    # b.add_window(w1)
+    w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
+    b.add_window(w1)
 
     filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library_simple.json')
     with open(filepath, 'r') as fp:
@@ -141,7 +156,6 @@ if __name__ == '__main__':
     with open(filepath, 'r') as fp:
         lib = json.load(fp)
     b.add_constructions_from_lib(lib)
-
 
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')

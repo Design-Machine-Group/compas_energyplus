@@ -15,12 +15,10 @@ def write_idf(building):
     write_global_vars(building)
     write_run_period(building)
     write_zones(building)
+    write_windows(building)
     write_materials(building)
     write_constructions(building)
-
-    # write_windows(building)
     # write_window_materials(building)
-    
     write_output_items(building)
 
 def write_pre(building):
@@ -79,13 +77,11 @@ def write_run_period(building):
     fh.write('\n')
     fh.close()
 
-
 def write_zones(building):
     for zkey in building.zones:
         zone = building.zones[zkey]
         write_zone(building, zone)
         write_zone_surfaces(building, zone)
-        # write_zone_thermo_schedule(building, zone)
 
 def write_zone(building, zone):
     fh = open(building.filepath, 'a')
@@ -113,6 +109,43 @@ def write_materials(building):
             write_material(building, mat)
         elif mat.__type__ == 'MaterialNoMass':
             write_materials_nomass(building, mat)
+        elif mat.__type__ == 'WindowMaterialGlazing':
+            write_material_glazing(building, mat)
+        elif mat.__type__ == 'WindowMaterialGas':
+            write_material_gas(building, mat)
+
+def write_material_glazing(building, mat):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('WindowMaterial:Glazing,\n')
+    fh.write(f'  {mat.name                                   },         !- Name\n')
+    fh.write(f'  {mat.optical_data_type                      },         !- Optical Data Type\n')
+    fh.write(f'  {mat.win_glass_spectral_data_name           },         !- Window Glass Spectral Data Set Name\n')
+    fh.write(f'  {mat.thickness                              },         !- Thickness (m)\n')
+    fh.write(f'  {mat.solar_transmittance                    },         !- Solar Transmittance at Normal Incidence\n')
+    fh.write(f'  {mat.front_solar_reflectance                },         !- Front Side Solar Reflectance at Normal Incidence\n')
+    fh.write(f'  {mat.back_solar_reflectance                 },         !- Back Side Solar Reflectance at Normal Incidence\n')
+    fh.write(f'  {mat.visible_transmittance                  },         !- Visible Transmittance at Normal Incidence\n')
+    fh.write(f'  {mat.front_visible_reflectance              },         !- Front Side Visible Reflectance at Normal Incidence\n')
+    fh.write(f'  {mat.back_visible_reflectance               },         !- Back Side Visible Reflectance at Normal Incidence\n')
+    fh.write(f'  {mat.infrared_transmittance                 },         !- Infrared Transmittance at Normal Incidence\n')
+    fh.write(f'  {mat.front_infrared_hemispherical_emissivity},         !- Front Side Infrared Hemispherical Emissivity\n')
+    fh.write(f'  {mat.back_infrared_hemispherical_emissivity },         !- Back Side Infrared Hemispherical Emissivity\n')
+    fh.write(f'  {mat.conductivity                           },         !- Conductivity (W/m-K)\n')
+    fh.write(f'  {mat.dirt_correction_factor                 },         !- Dirt Correction Factor for Solar and Visible Transmittance\n')
+    fh.write(f'  {mat.solar_diffusing                        };         !- Solar Diffusing\n')
+    fh.write('\n')
+    fh.close()
+
+def write_material_gas(building, mat):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    fh.write('WindowMaterial:Gas,\n')
+    fh.write(f'  {mat.name      },         !- Name\n')
+    fh.write(f'  {mat.gas_type },         !- Gas Type\n')
+    fh.write(f'  {mat.thickness};         !- Thickness (m)\n')
+    fh.write('\n')
+    fh.close()
 
 def write_materials_nomass(building, mat):
     fh = open(building.filepath, 'a')
@@ -200,17 +233,22 @@ def write_windows(building):
 
         fh.write('\n')
         fh.write('FenestrationSurface:Detailed,\n')
-        fh.write('{},            !- Name\n'.format(win.name))
-        fh.write('Window,        !- Surface Type\n')
-        fh.write('{},            !- Construction Name\n'.format(con))
-        fh.write('{},            !- Building Surface Name\n'.format(bsn))
-        fh.write(',              !- Outside Boundary Condition Object\n')
-        fh.write(',              !- View Factor to Ground\n')
-        fh.write(',              !- Frame and Divider Name\n')
-        fh.write(',              !- Multiplier\n')
-        fh.write(',              !- Number of Vertices\n')
-        for x, y, z in win.nodes:
-            fh.write('{}, {}, {}, !- X,Y,Z Vertex (m)\n'.format(x, y, z))
+        fh.write('{},                       !- Name\n'.format(win.name))
+        fh.write('Window,                   !- Surface Type\n')
+        fh.write('{},                       !- Construction Name\n'.format(con))
+        fh.write('{},                       !- Building Surface Name\n'.format(bsn))
+        fh.write(',                         !- Outside Boundary Condition Object\n')
+        fh.write(',                         !- View Factor to Ground\n')
+        fh.write(',                         !- Frame and Divider Name\n')
+        fh.write(',                         !- Multiplier\n')
+        fh.write('{},                         !- Number of Vertices\n'.format(len(win.nodes)))
+        for i, nodes in enumerate(win.nodes):
+            x, y, z = nodes
+            if i == len(win.nodes) - 1:
+                sep = ';'
+            else:
+                sep = ','
+            fh.write('{:.3f}, {:.3f}, {:.3f}{}\t\t\t\t\t!- X,Y,Z Vertex {} (m)\n'.format(x, y, z, sep, i))
         fh.write('\n')
     fh.write('\n')
     fh.close()
@@ -247,9 +285,6 @@ def write_zone_thermo_schedule(building, zone):
     fh.write('  DISCRETE;                               !- Numeric Type\n')
     fh.write('\n')
     fh.close()
-
-def write_window_materials(building):
-    pass
 
 def write_constructions(building):
     fh = open(building.filepath, 'a')

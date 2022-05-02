@@ -28,9 +28,15 @@ c3.name = 'ROOF31'
 c3.layers = ['R31LAYER',
              ]
 
+c4 = Construction()
+c4.name = 'Generic Double Pane'
+c4.layers = ['Generic Low-e Glass',
+             'Generic Window Air Gap',
+             'Generic Clear Glass',
+             ]
 
 
-constructions = [c1, c2, c3]
+constructions = [c1, c2, c3, c4]
 data = {}
 for con in constructions:
     data[con.name] = con.data

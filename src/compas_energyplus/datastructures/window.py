@@ -39,8 +39,8 @@ class Window(object):
     def data(self, data):
         self.name               = data.get('name') or {}
         self.nodes              = data.get('nodes') or {}
-        self.building_surface   = data.get('building_surfaces') or {}
-        self.construction       = data.get('constructuion') or {}
+        self.building_surface   = data.get('building_surface') or {}
+        self.construction       = data.get('construction') or {}
 
     @classmethod
     def from_json(cls, filepath):

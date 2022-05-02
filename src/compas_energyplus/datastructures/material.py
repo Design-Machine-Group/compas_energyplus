@@ -127,6 +127,7 @@ class MaterialNoMass(object):
 
 class WindowMaterialGas(object):
     def __init__(self):
+        self.__type__          = 'WindowMaterialGas'
         self.name              = 'WindowMaterialGas'                   
         self.gas_type          = None
         self.thickness         = None
@@ -138,7 +139,8 @@ class WindowMaterialGas(object):
 
     @property
     def data(self):
-        data = {'name'         : self.name,
+        data = {'__type__'     : self.__type__,
+                'name'         : self.name,
                 'gas_type'     : self.gas_type,
                 'thickness'    : self.thickness,
                 }
@@ -146,6 +148,7 @@ class WindowMaterialGas(object):
     
     @data.setter
     def data(self, data):
+        self.__type__       = data.get('__type__') or {}
         self.name           = data.get('name') or {}
         self.gas_type       = data.get('gas_type') or {}
         self.thickness      = data.get('thickness') or {}
@@ -167,20 +170,21 @@ class WindowMaterialGas(object):
 
 class WindowMaterialGlazing(object):
     def __init__(self):
-        self.name                                       = 'WindowMaterialGlazing'                   
+        self.__type__                                   = 'WindowMaterialGlazing'
+        self.name                                       = 'WindowMaterialGlazing'
         self.optical_data_type                          = None
         self.win_glass_spectral_data_name               = None
         self.thickness                                  = None
         self.solar_transmittance                        = None
         self.front_solar_reflectance                    = None
-        self.back_solar_reflectance                     = None 
-        self.visible_transmittance                      = None    
+        self.back_solar_reflectance                     = None
+        self.visible_transmittance                      = None
         self.front_visible_reflectance                  = None
-        self.back_visible_reflectance                   = None 
-        self.infrared_transmittance                     = None     
+        self.back_visible_reflectance                   = None
+        self.infrared_transmittance                     = None
         self.front_infrared_hemispherical_emissivity    = None
-        self.back_infrared_hemispherical_emissivity     = None 
-        self.conductivity                               = None                               
+        self.back_infrared_hemispherical_emissivity     = None
+        self.conductivity                               = None
         self.dirt_correction_factor                     = None
         self.solar_diffusing                            = None
 
@@ -191,7 +195,8 @@ class WindowMaterialGlazing(object):
 
     @property
     def data(self):
-        data = {'name'                                      : self.name,                                   
+        data = {'__type__'                                  : self.__type__,
+                'name'                                      : self.name,                                   
                 'optical_data_type'                         : self.optical_data_type,                     
                 'win_glass_spectral_data_name'              : self.win_glass_spectral_data_name,
                 'thickness'                                 : self.thickness,          
@@ -212,9 +217,10 @@ class WindowMaterialGlazing(object):
     
     @data.setter
     def data(self, data):
+        self.__type__                                = data.get('__type__') or {}
         self.name                                    = data.get('name') or {}
         self.optical_data_type                       = data.get('optical_data_type') or {}
-        self.win_glass_spectral_data_name            = data.get('win_glass_spectral_data_name') or {}
+        self.win_glass_spectral_data_name            = data.get('win_glass_spectral_data_name') or ''
         self.thickness                               = data.get('thickness') or {}
         self.solar_transmittance                     = data.get('solar_transmittance') or {}
         self.front_solar_reflectance                 = data.get('front_solar_reflectance') or {}
@@ -222,7 +228,7 @@ class WindowMaterialGlazing(object):
         self.visible_transmittance                   = data.get('visible_transmittance') or {}
         self.front_visible_reflectance               = data.get('front_visible_reflectance') or {}
         self.back_visible_reflectance                = data.get('back_visible_reflectance') or {}
-        self.infrared_transmittance                  = data.get('infrared_transmittance') or {}
+        self.infrared_transmittance                  = data.get('infrared_transmittance') or ''
         self.front_infrared_hemispherical_emissivity = data.get('front_infrared_hemispherical_emissivity') or {}
         self.back_infrared_hemispherical_emissivity  = data.get('back_infrared_hemispherical_emissivity') or {}
         self.conductivity                            = data.get('conductivity') or {}
