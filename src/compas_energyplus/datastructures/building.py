@@ -35,6 +35,7 @@ class Building(object):
         self.window_materials_gas = {}
         self.window_materials_glazing = {}
         self.constructions = {}
+        self.mean_air_temperatures = []
 
     def write_idf(self):
         write_idf(self)
@@ -70,10 +71,47 @@ class Building(object):
     def analyze(self, exe=None):
         idf = self.filepath
         if not exe:
-            eplus = 'energyplus'
+            exe = 'energyplus'
         out = os.path.join(compas_energyplus.TEMP, 'eplus_output')
         print(exe, '-w', self.weather,'--output-directory', out, idf)
         subprocess.call([exe, '-w', self.weather,'--output-directory', out, idf])
+
+    def load_results(self):
+        fh = open(os.path.join(compas_energyplus.TEMP, 'eplus_output', 'eplusout.eso'), 'r')
+        lines = fh.readlines()
+        fh.close()
+        temps = []
+        times = []
+        del lines[:10]
+        del lines[-2:]
+        for i in range(0, len(lines), 2):
+            line1 = lines[i]
+            line2 = lines[i + 1]
+            _, temp = line2.split(',')
+            time = line1.split(',')
+            month = int(time[2])
+            day = int(time[3])
+            hour = int(time[5]) - 1
+            temps.append(float(temp))
+            times.append([hour, day, month])
+        self.mean_air_temperatures = temps
+        self.result_times = times
+
+    def plot_mean_average_temperatures(self):
+        import plotly.express as px
+        from datetime import datetime
+        import pandas as pd
+
+        times = [datetime(2022, m, d, h) for h, d, m in self.result_times]
+        temps = b.mean_air_temperatures
+
+        data = {i: {'temp':temps[i], 'time':times[i]} for i in range(len(times))}
+        df = pd.DataFrame.from_dict(data, orient='index')
+        # fig = px.line(x=range(len(temps)), y=temps)
+        fig = px.scatter(df, x='time', y='temp')
+        fig.update_xaxes(dtick="M1",tickformat="%b")
+        fig.show()
+
 
 if __name__ == '__main__':
     from compas_energyplus.datastructures import Zone
@@ -107,6 +145,5 @@ if __name__ == '__main__':
 
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
-
-
-    
+    b.load_results()
+    b.plot_mean_average_temperatures()
