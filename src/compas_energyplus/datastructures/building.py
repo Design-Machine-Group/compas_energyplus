@@ -22,6 +22,7 @@ from compas_energyplus.datastructures.construction import Construction
 from compas_energyplus.datastructures.zone import Zone
 from compas_energyplus.datastructures.window import Window
 
+# TODO: Delete previous results
 
 class Building(object):
     def __init__(self, filepath, weather):
@@ -239,9 +240,10 @@ if __name__ == '__main__':
     b.add_constructions_from_lib(lib)
 
     b.write_idf()
-    b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
+    b.analyze(exe='/Applications/EnergyPlus/energyplus')
+    # b.analyze()
     b.load_results()
-    # b.plot_mean_average_temperatures()
+    b.plot_mean_average_temperatures()
 
     b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
 
