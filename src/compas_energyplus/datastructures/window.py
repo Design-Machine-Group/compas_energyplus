@@ -43,6 +43,13 @@ class Window(object):
         self.construction       = data.get('construction') or {}
 
     @classmethod
+    def from_data(cls, data):
+        window = cls()
+        window.data = data
+        return window
+
+
+    @classmethod
     def from_json(cls, filepath):
         with open(filepath, 'r') as fp:
             data = json.load(fp)

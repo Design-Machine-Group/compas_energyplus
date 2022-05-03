@@ -19,25 +19,110 @@ from compas_energyplus.datastructures.material import MaterialNoMass
 from compas_energyplus.datastructures.material import WindowMaterialGas
 from compas_energyplus.datastructures.material import WindowMaterialGlazing
 from compas_energyplus.datastructures.construction import Construction
+from compas_energyplus.datastructures.zone import Zone
+from compas_energyplus.datastructures.window import Window
+
 
 class Building(object):
     def __init__(self, filepath, weather):
         self.filepath = filepath
         self.weather = weather
-
         self.name = 'Building'
         self.ep_version = '9.6'
         self.num_timesteps = 1
         self.terrain = 'City'
         self.solar_distribution = 'FullExteriorWithReflections'
-
         self.zones = {}
         self.windows = {}
         self.materials = {}
-        self.window_materials_gas = {}
-        self.window_materials_glazing = {}
         self.constructions = {}
         self.mean_air_temperatures = []
+
+    def to_json(self, filepath):
+        with open(filepath, 'w+') as fp:
+            json.dump(self.data, fp)
+
+    @property
+    def data(self):
+
+        zones = {}
+        for zk in self.zones:
+            zones[zk] = self.zones[zk].data
+
+        windows = {}
+        for wk in self.windows:
+            windows[wk] = self.windows[wk].data
+
+        materials = {}
+        for mk in self.materials:
+            materials[mk] = self.materials[mk].data
+
+        constructions = {}
+        for ck in self.constructions:
+            constructions[ck] = self.constructions[ck].data
+
+
+        data = {'filepath' : self.filepath,
+                'weather': self.weather,
+                'name' : self.name,
+                'ep_version' : self.ep_version,
+                'num_timesteps' : self.num_timesteps,
+                'terrain' : self.terrain,
+                'solar_distribution' : self.solar_distribution,
+                'zones' : zones,
+                'windows' : windows,
+                'materials' : materials,
+                'constructions' : constructions,
+                'mean_air_temperatures' : self.mean_air_temperatures,
+                }
+        return data
+    
+    @data.setter
+    def data(self, data):
+        self.filepath              = data.get('filepath') or {}
+        self.weather               = data.get('weather') or {}
+        self.name                  = data.get('name') or {}
+        self.ep_version            = data.get('ep_version') or {}
+        self.num_timesteps         = data.get('num_timesteps') or {}
+        self.terrain               = data.get('terrain') or {}
+        self.solar_distribution    = data.get('solar_distribution') or {}
+        zones                 = data.get('zones') or {}
+        windows               = data.get('windows') or {}
+        materials             = data.get('materials') or {}
+        constructions         = data.get('constructions') or {}
+        self.mean_air_temperatures = data.get('mean_air_temperatures') or {}
+
+        for zk in zones:
+            self.zones[zk] = Zone.from_data(zones[zk])
+
+        for wk in windows:
+            self.windows[wk] = Window.from_data(windows[wk])
+
+        mat_dict = {'Material': Material,
+                    'MaterialNoMass': MaterialNoMass,
+                    'WindowMaterialGlazing': WindowMaterialGlazing,
+                    'WindowMaterialGas': WindowMaterialGas, 
+                    }
+
+        for mk in materials:
+            mat = mat_dict[materials[mk]['__type__']]
+            self.materials[mk] = mat.from_data(materials[mk])
+
+        for ck in constructions:
+            self.constructions[ck] = Construction.from_data(constructions[ck])
+
+
+    @classmethod
+    def from_json(cls, filepath):
+        with open(filepath, 'r') as fp:
+            data = json.load(fp)
+
+        filepath = data['filepath']
+        weather = data['weather']
+
+        building = cls(filepath, weather)
+        building.data = data
+        return building
 
     def write_idf(self):
         write_idf(self)
@@ -52,18 +137,16 @@ class Building(object):
         self.materials[len(self.materials)] = material
 
     def add_materials_from_lib(self, lib):
+
+        mat_dict = {'Material': Material,
+                    'MaterialNoMass': MaterialNoMass,
+                    'WindowMaterialGlazing': WindowMaterialGlazing,
+                    'WindowMaterialGas': WindowMaterialGas, 
+                    }
+
         for mk in lib:
             t = lib[mk]['__type__']
-            if t == 'Material':
-                mat = Material.from_data(lib[mk])
-            elif t == 'MaterialNoMass':
-                mat = MaterialNoMass.from_data(lib[mk])
-            elif t == 'WindowMaterialGlazing':
-                mat = WindowMaterialGlazing.from_data(lib[mk])
-            elif t =='WindowMaterialGas':
-                mat = WindowMaterialGas.from_data(lib[mk])
-            else:
-                continue
+            mat = mat_dict[t].from_data(lib[mk])
             self.add_material(mat)
 
     def add_constructions_from_lib(self, lib):
@@ -129,8 +212,6 @@ class Building(object):
 
 
 if __name__ == '__main__':
-    from compas_energyplus.datastructures import Zone
-    from compas_energyplus.datastructures import Window
 
     for i in range(50): print('')
 
@@ -160,4 +241,9 @@ if __name__ == '__main__':
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
     b.load_results()
-    b.plot_mean_average_temperatures()
+    # b.plot_mean_average_temperatures()
+
+    b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
+
+    # b2 = Building.from_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
+    # print(b2.constructions)

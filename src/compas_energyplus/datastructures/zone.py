@@ -39,6 +39,11 @@ class Zone(object):
         self.surfaces = ZoneSurfaces.from_data(mesh.data)
         self.surfaces.assign_zone_surface_attributes()
 
+    @classmethod
+    def from_data(cls, data):
+        zone = cls()
+        zone.data = data
+        return zone
 
     @classmethod
     def from_json(cls, filepath):
