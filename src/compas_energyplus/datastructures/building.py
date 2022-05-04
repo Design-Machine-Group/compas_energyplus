@@ -240,7 +240,7 @@ if __name__ == '__main__':
     b.add_constructions_from_lib(lib)
 
     b.write_idf()
-    b.analyze(exe='/Applications/EnergyPlus/energyplus')
+    b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
     # b.analyze()
     b.load_results()
     b.plot_mean_average_temperatures()
