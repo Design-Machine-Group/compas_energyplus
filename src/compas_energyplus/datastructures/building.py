@@ -13,6 +13,8 @@ import json
 import compas_energyplus
 import subprocess
 
+from compas.utilities import geometric_key
+
 from compas_energyplus.read_write import write_idf
 from compas_energyplus.read_write import read_mean_zone_temperatures
 from compas_energyplus.datastructures.material import Material
@@ -44,6 +46,7 @@ class Building(object):
         self.shadings = {}
         self.mean_air_temperatures = {}
         self.construction_key_dict = {}
+        self.srf_cpt_dict = {}
 
     def to_json(self, filepath):
         with open(filepath, 'w+') as fp:
@@ -131,16 +134,15 @@ class Building(object):
         for sk in shadings:
             self.shadings[sk] = Shading.from_data(shadings[sk])
 
-
     @classmethod
     def from_json(cls, filepath):
         with open(filepath, 'r') as fp:
             data = json.load(fp)
 
-        filepath = data['filepath']
+        path = data['path']
         weather = data['weather']
 
-        building = cls(filepath, weather)
+        building = cls(path, weather)
         building.data = data
         return building
 
@@ -148,7 +150,15 @@ class Building(object):
         write_idf(self)
 
     def add_zone(self, zone):
-        self.zones[len(self.zones)] = zone
+        zk =  len(self.zones)
+        self.zones[zk] = zone
+        mesh = self.zones[zk].surfaces
+        for fk in mesh.faces():
+            cpt =mesh.face_centroid(fk)
+            gk = geometric_key(cpt)
+            if gk in self.srf_cpt_dict:
+                mesh.face_attribute(fk, 'outside_boundary_condition', 'Adiabatic')
+            self.srf_cpt_dict[gk] = {'zone': zk, 'surface': fk}
     
     def add_window(self, window):
         self.windows[len(self.windows)] = window
@@ -249,6 +259,9 @@ if __name__ == '__main__':
 
     z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
     b.add_zone(z2)
+
+    z3 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
+    b.add_zone(z3)
 
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)

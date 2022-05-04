@@ -76,3 +76,37 @@ zone = Zone()
 zone.name = name
 zone.add_surfaces(mesh)
 zone.to_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
+
+
+w = 5
+l = 3
+h = 3
+h_base = 0
+l_base = l
+
+v0 = [0, 0 + l_base, 0 + h_base]
+v1 = [w, 0 + l_base, 0 + h_base]
+v2 = [w, l + l_base, 0 + h_base]
+v3 = [0, l + l_base, 0 + h_base]
+v4 = [0, 0 + l_base, h + h_base]
+v5 = [w, 0 + l_base, h + h_base]
+v6 = [w, l + l_base, h + h_base]
+v7 = [0, l + l_base, h + h_base]
+
+f0 = [0, 3, 2, 1]
+# f0 = [0, 1, 2, 3]
+f1 = [4, 5, 6, 7]
+f2 = [0, 1, 5, 4]
+f3 = [1, 2, 6, 5]
+f4 = [2, 3, 7, 6]
+f5 = [3, 0, 4, 7]
+
+vertices = [v0, v1, v2, v3, v4, v5, v6, v7]
+faces = [f0, f1, f2, f3, f4, f5]
+
+name = 'zone3'
+mesh = Mesh.from_vertices_and_faces(vertices, faces)
+zone = Zone()
+zone.name = name
+zone.add_surfaces(mesh)
+zone.to_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
