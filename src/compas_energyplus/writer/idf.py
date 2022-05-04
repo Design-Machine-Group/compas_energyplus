@@ -18,6 +18,7 @@ def write_idf(building):
     write_windows(building)
     write_materials(building)
     write_constructions(building)
+    write_shadings(building)
     # write_window_materials(building)
     write_output_items(building)
 
@@ -306,13 +307,39 @@ def write_constructions(building):
 
 def write_output_items(building):
     fh = open(building.filepath, 'a')
-    fh.write('  Output:Variable,*,Zone Mean Air Temperature,timestep;\n')
+    fh.write('Output:Variable,*,Zone Mean Air Temperature,timestep;\n')
     fh.write('\n')
-    fh.write('  OutputControl:Table:Style,\n')
+    fh.write('OutputControl:Table:Style,\n')
     fh.write('    HTML;                    !- Column Separator\n')
     fh.write('\n')
-    fh.write('  Output:Table:SummaryReports,\n')
+    fh.write('Output:Table:SummaryReports,\n')
     fh.write('    AllSummary;              !- Report 1 Name\n')
+    fh.write('\n')
+    fh.close()
+
+def write_shadings(building):
+    for sk in building.shadings:
+        write_shading(building, building.shadings[sk])
+
+def write_shading(building, shading):
+    fh = open(building.filepath, 'a')
+    fh.write('\n')
+    sname = shading.name
+    mesh = shading.mesh
+    for fk in mesh.faces():
+        fh.write('Shading:Building:Detailed,\n')
+        fh.write(f'  Shading {sname}-{fk}, !- Detached Shading\n')
+        fh.write('  , !- Shadowing Transmittance & Schedule\n')
+        vertices = mesh.face_vertices(fk)
+        fh.write(f'  {len(vertices)}, !-Number of verrices\n')
+        for i, vk in enumerate(vertices):
+            if i == len(vertices) - 1:
+                sep = ';'
+            else:
+                sep = ','
+            x, y, z = mesh.vertex_coordinates(vk)
+            fh.write(f'  {x}, {y}, {z}{sep} ! Vertex {i}\n')
+        fh.write('\n')
     fh.write('\n')
     fh.close()
 
@@ -330,7 +357,7 @@ if __name__ == '__main__':
     construction - x
     material no mass - x 
 
-    output variables
+    output variables - x
 
 
     sizing period design day heating
@@ -347,5 +374,4 @@ if __name__ == '__main__':
     
 
     fenestration surface detailed
-    output variables
     """

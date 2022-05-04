@@ -21,6 +21,7 @@ from compas_energyplus.datastructures.material import WindowMaterialGlazing
 from compas_energyplus.datastructures.construction import Construction
 from compas_energyplus.datastructures.zone import Zone
 from compas_energyplus.datastructures.window import Window
+from compas_energyplus.datastructures.shading import Shading
 
 # TODO: Delete previous results
 
@@ -37,6 +38,7 @@ class Building(object):
         self.windows = {}
         self.materials = {}
         self.constructions = {}
+        self.shadings = {}
         self.mean_air_temperatures = []
         self.construction_key_dict = {}
 
@@ -63,6 +65,10 @@ class Building(object):
         for ck in self.constructions:
             constructions[ck] = self.constructions[ck].data
 
+        shadings = {}
+        for sk in self.shadings:
+            shadings[sk] = self.shadings[sk].data
+
 
         data = {'filepath' : self.filepath,
                 'weather': self.weather,
@@ -75,6 +81,7 @@ class Building(object):
                 'windows' : windows,
                 'materials' : materials,
                 'constructions' : constructions,
+                'shadings': shadings,
                 'construction_key_dict': self.construction_key_dict, 
                 'mean_air_temperatures' : self.mean_air_temperatures,
                 }
@@ -93,6 +100,7 @@ class Building(object):
         windows                    = data.get('windows') or {}
         materials                  = data.get('materials') or {}
         constructions              = data.get('constructions') or {}
+        shadings                   = data.get('shadings') or {}
         self.construction_key_dict = data.get('construction_key_dict') or {}
         self.mean_air_temperatures = data.get('mean_air_temperatures') or {}
 
@@ -114,6 +122,10 @@ class Building(object):
 
         for ck in constructions:
             self.constructions[ck] = Construction.from_data(constructions[ck])
+
+        for sk in shadings:
+            self.shadings[sk] = Shading.from_data(shadings[sk])
+
 
     @classmethod
     def from_json(cls, filepath):
@@ -161,6 +173,9 @@ class Building(object):
         ck = len(self.constructions)
         self.constructions[ck] = construction
         self.construction_key_dict[construction.name] = ck
+
+    def add_shading(self, shading):
+        self.shadings[len(self.shadings)] = shading
 
     def analyze(self, exe=None):
         idf = self.filepath
@@ -223,8 +238,8 @@ if __name__ == '__main__':
     data = compas_energyplus.DATA
     
     filepath = os.path.join(compas_energyplus.TEMP, 'idf_testing.idf')
-    # wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
-    wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
+    wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
+    # wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
     b = Building(filepath, wea)
 
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
@@ -232,6 +247,9 @@ if __name__ == '__main__':
 
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
+
+    s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
+    b.add_shading(s1)
 
     filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library_simple.json')
     with open(filepath, 'r') as fp:
