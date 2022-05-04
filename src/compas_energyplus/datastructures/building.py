@@ -245,11 +245,14 @@ if __name__ == '__main__':
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
+    z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
+    b.add_zone(z2)
+
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
 
-    # s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
-    # b.add_shading(s1)
+    s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
+    b.add_shading(s1)
 
     filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library_simple.json')
     with open(filepath, 'r') as fp:
@@ -264,8 +267,8 @@ if __name__ == '__main__':
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
     # b.analyze()
-    b.load_results()
-    b.plot_mean_average_temperatures()
+    # b.load_results()
+    # b.plot_mean_average_temperatures()
 
     b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
 

@@ -64,7 +64,6 @@ class BuildingViewer(object):
         for sk in self.building.shadings:
             self.add_shading_mesh(sk)
 
-
     def add_shading_mesh(self, key):
         mesh = self.building.shadings[key].mesh
         vertices, faces = mesh.to_vertices_and_faces()
@@ -242,7 +241,9 @@ class BuildingViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        colors = px.colors.qualitative.Pastel2
+        # colorscales = ['sunset', 'viridis', 'amp']
+        import plotly
+        colorscales = dir(plotly.colors.sequential)[::2]
         attrs = ['name', 'surface_type', 'outside_boundary_condition', 'construction']
         text = []
         intensity = []
@@ -280,7 +281,7 @@ class BuildingViewer(object):
                            intensitymode='cell',
                            intensity=intensity,
                            showscale=False,
-                           colorscale='sunset',
+                           colorscale=colorscales[int(key)],
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
