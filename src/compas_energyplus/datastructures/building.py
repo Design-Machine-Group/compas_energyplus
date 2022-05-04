@@ -248,8 +248,8 @@ if __name__ == '__main__':
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
 
-    s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
-    b.add_shading(s1)
+    # s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
+    # b.add_shading(s1)
 
     filepath = os.path.join(compas_energyplus.DATA, 'materials', 'material_library_simple.json')
     with open(filepath, 'r') as fp:

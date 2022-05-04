@@ -4,12 +4,12 @@ from compas_energyplus.datastructures import Window
 
 for i in range(50): print('')
 
-w = 10
-l = 12
+w = 5
+# l = 3
 h = 3
 
-w_ = w / 3
-h_ = h / 3
+w_ = w / 2
+h_ = h / 2
 
 v0 = [w_, 0, h_]
 v1 = [w_ *  2, 0, h_]

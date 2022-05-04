@@ -13,8 +13,8 @@ from compas_energyplus.datastructures import Zone
 
 for i in range(50): print('')
 
-w = 10
-l = 12
+w = 5
+l = 3
 h = 3
 
 v0 = [0, 0, 0]

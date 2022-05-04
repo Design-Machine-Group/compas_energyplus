@@ -77,14 +77,14 @@ class BuildingViewer(object):
             y.extend([u[1], v[1], [None]])
             z.extend([u[2], v[2], [None]])
 
-        wname = self.building.windows[key].name
-        lines = [go.Scatter3d(name=f'{wname}',
+        sname = self.building.shadings[key].name
+        lines = [go.Scatter3d(name=f'{sname}',
                               x=x,
                               y=y,
                               z=z,
                               mode='lines',
                               line=line_marker,
-                              legendgroup=f'{wname}',
+                              legendgroup=f'{sname}',
                               )]
         triangles = []
         for face in faces:
@@ -116,7 +116,7 @@ class BuildingViewer(object):
                         #    colorbar_thickness=10,
                         #    text=text,
                         #    hoverinfo='text',
-                        #    legendgroup=f'{wname}',
+                           legendgroup=f'{sname}',
                            lighting={'ambient':1.},
                         #    intensitymode='cell',
                         #    intensity=intensity,
