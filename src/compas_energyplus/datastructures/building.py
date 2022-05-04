@@ -38,6 +38,7 @@ class Building(object):
         self.materials = {}
         self.constructions = {}
         self.mean_air_temperatures = []
+        self.construction_key_dict = {}
 
     def to_json(self, filepath):
         with open(filepath, 'w+') as fp:
@@ -74,6 +75,7 @@ class Building(object):
                 'windows' : windows,
                 'materials' : materials,
                 'constructions' : constructions,
+                'construction_key_dict': self.construction_key_dict, 
                 'mean_air_temperatures' : self.mean_air_temperatures,
                 }
         return data
@@ -87,10 +89,11 @@ class Building(object):
         self.num_timesteps         = data.get('num_timesteps') or {}
         self.terrain               = data.get('terrain') or {}
         self.solar_distribution    = data.get('solar_distribution') or {}
-        zones                 = data.get('zones') or {}
-        windows               = data.get('windows') or {}
-        materials             = data.get('materials') or {}
-        constructions         = data.get('constructions') or {}
+        zones                      = data.get('zones') or {}
+        windows                    = data.get('windows') or {}
+        materials                  = data.get('materials') or {}
+        constructions              = data.get('constructions') or {}
+        self.construction_key_dict = data.get('construction_key_dict') or {}
         self.mean_air_temperatures = data.get('mean_air_temperatures') or {}
 
         for zk in zones:
@@ -111,7 +114,6 @@ class Building(object):
 
         for ck in constructions:
             self.constructions[ck] = Construction.from_data(constructions[ck])
-
 
     @classmethod
     def from_json(cls, filepath):
@@ -156,7 +158,9 @@ class Building(object):
             self.add_construction(con)
 
     def add_construction(self, construction):
-        self.constructions[len(self.constructions)] = construction
+        ck = len(self.constructions)
+        self.constructions[ck] = construction
+        self.construction_key_dict[construction.name] = ck
 
     def analyze(self, exe=None):
         idf = self.filepath

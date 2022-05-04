@@ -99,7 +99,24 @@ class BuildingViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        color = px.colors.qualitative.G10[0]
+
+        text = []
+        intensity = []
+        for fk in mesh.faces():
+            ck = self.building.windows[key].construction
+            con = self.building.constructions[str(self.building.construction_key_dict[ck])]
+            layers = con.layers
+            # string = 'zone: {}<br>'.format(wname)
+            string = 'name: {}<br>'.format(wname)
+            string += 'construction: {}<br>'.format(ck)
+            for lk, layer in enumerate(layers):
+                string += 'layer {}: {}<br>'.format(lk, layer)
+            text.append(string)
+            intensity.append(float(key))
+            if len(mesh.face_vertices(fk)) == 4:
+                intensity.append(float(key))
+                text.append(string)
+
 
 
         faces = [go.Mesh3d(name='Zone',
@@ -112,15 +129,15 @@ class BuildingViewer(object):
                            opacity=.8,
                            colorbar_title='is_rad',
                            colorbar_thickness=10,
-                           color=color,
+                           text=text,
                            hoverinfo='text',
-                           legendgroup='Zone',
-                           lighting={'ambient':1.}
-                        #    showscale=showscale,
-                        #    colorscale=colorscale,
-                        #    intensity=intensity_,
-                        #    intensitymode=intensitymode,
-                        #    text=text,
+                           legendgroup=f'{wname}',
+                           lighting={'ambient':1.},
+                           intensitymode='cell',
+                           intensity=intensity,
+                           showscale=False,
+                           colorscale='gnbu',
+
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
@@ -162,6 +179,24 @@ class BuildingViewer(object):
         z = [v[2] for v in vertices]
 
         colors = px.colors.qualitative.Pastel2
+        attrs = ['name', 'surface_type', 'outside_boundary_condition', 'construction']
+        text = []
+        intensity = []
+        for fk in mesh.faces():
+            faceatts = mesh.face_attributes(fk)
+            ck = mesh.face_attribute(fk, 'construction')
+            con = self.building.constructions[str(self.building.construction_key_dict[ck])]
+            layers = con.layers
+            string = 'zone: {}<br>'.format(zname)
+            for att in attrs:
+                string += '{}: {}<br>'.format(att, faceatts[att])
+            for lk, layer in enumerate(layers):
+                string += 'layer {}: {}<br>'.format(lk, layer)
+            text.append(string)
+            intensity.append(float(key))
+            if len(mesh.face_vertices(fk)) == 4:
+                intensity.append(float(key))
+                text.append(string)
 
 
         faces = [go.Mesh3d(name='Zone',
@@ -174,16 +209,14 @@ class BuildingViewer(object):
                            opacity=.8,
                            colorbar_title='is_rad',
                            colorbar_thickness=10,
-                           color=colors[int(key)],
+                           text = text,
                            hoverinfo='text',
-                           legendgroup='Zone',
-                        #    lighting=None,
+                           legendgroup=f'{zname}',
                            lighting={'ambient':1.0},
-                        #    showscale=showscale,
-                        #    colorscale=colorscale,
-                        #    intensity=intensity_,
-                        #    intensitymode=intensitymode,
-                        #    text=text,
+                           intensitymode='cell',
+                           intensity=intensity,
+                           showscale=False,
+                           colorscale='sunset',
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
