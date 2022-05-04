@@ -8,7 +8,7 @@ __version__ = "0.1.0"
 
 
 def write_idf(building):
-    fh = open(building.filepath, 'w')
+    fh = open(building.idf_filepath, 'w')
     fh.close()
     write_pre(building)
     write_building(building)
@@ -23,7 +23,7 @@ def write_idf(building):
     write_output_items(building)
 
 def write_pre(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n') 
     fh.write('Version,\n')
     fh.write(f'  {building.ep_version};{"":<30}!- Version Identifier\n')
@@ -34,7 +34,7 @@ def write_pre(building):
     fh.close()
 
 def write_building(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('Building,\n')
     fh.write(f'  {building.name},{"":<40}!- Name\n')
     fh.write(f'  0,{"":<40} !- North Axis (deg)\n')
@@ -50,7 +50,7 @@ def write_building(building):
 def write_global_vars(building):
 
     # global geometric rules - - - - - -
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n') 
     fh.write('GlobalGeometryRules,\n')
     fh.write(f'  UpperLeftCorner,{"":<30}!- Starting Vertex Position\n')
@@ -60,7 +60,7 @@ def write_global_vars(building):
     fh.close()
 
 def write_run_period(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('  RunPeriod,\n')
     fh.write('    Run Period 1,            !- Name\n')
     fh.write('    1,                       !- Begin Month\n')
@@ -85,7 +85,7 @@ def write_zones(building):
         write_zone_surfaces(building, zone)
 
 def write_zone(building, zone):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('Zone,\n')
     fh.write(f'  {zone.name},{"":<30}!- Name\n')
     fh.write(f'  0,{"":<30} !- Direction of Relative North (deg)\n')
@@ -116,7 +116,7 @@ def write_materials(building):
             write_material_gas(building, mat)
 
 def write_material_glazing(building, mat):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('WindowMaterial:Glazing,\n')
     fh.write(f'  {mat.name                                   },         !- Name\n')
@@ -139,7 +139,7 @@ def write_material_glazing(building, mat):
     fh.close()
 
 def write_material_gas(building, mat):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('WindowMaterial:Gas,\n')
     fh.write(f'  {mat.name      },         !- Name\n')
@@ -149,7 +149,7 @@ def write_material_gas(building, mat):
     fh.close()
 
 def write_materials_nomass(building, mat):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('Material:NoMass,\n')
     fh.write('  {},     !- Name\n'.format(mat.name))
@@ -163,7 +163,7 @@ def write_materials_nomass(building, mat):
     fh.close()
 
 def write_material(building, mat):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('Material,\n')
     fh.write('  {},     !- Name\n'.format(mat.name))
@@ -180,7 +180,7 @@ def write_material(building, mat):
     fh.close()
 
 def write_zone_surfaces(building, zone):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     for fk in zone.surfaces.faces():
         write_building_surface(building, zone, fk)
     fh.close()
@@ -200,7 +200,7 @@ def write_building_surface(building, zone, fk):
 
     num_vert = len(zone.surfaces.face_vertices(fk))
 
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('BuildingSurface:Detailed,\n')
     fh.write('  {}_{},                    !- Name\n'.format(zone.name, fk))
@@ -226,7 +226,7 @@ def write_building_surface(building, zone, fk):
     fh.close()
 
 def write_windows(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     for wk in building.windows:
         win = building.windows[wk]
         con = win.construction
@@ -255,7 +255,7 @@ def write_windows(building):
     fh.close()
 
 def write_zone_thermo_schedule(building, zone):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('ZoneControl:Thermostat,\n')
     fh.write('  {} Thermostat,         !- Name\n'.format(zone.name))
@@ -288,7 +288,7 @@ def write_zone_thermo_schedule(building, zone):
     fh.close()
 
 def write_constructions(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     for ck in building.constructions:
         name = building.constructions[ck].name
@@ -306,7 +306,7 @@ def write_constructions(building):
     fh.close()
 
 def write_output_items(building):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('Output:Variable,*,Zone Mean Air Temperature,timestep;\n')
     fh.write('\n')
     fh.write('OutputControl:Table:Style,\n')
@@ -322,7 +322,7 @@ def write_shadings(building):
         write_shading(building, building.shadings[sk])
 
 def write_shading(building, shading):
-    fh = open(building.filepath, 'a')
+    fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     sname = shading.name
     mesh = shading.mesh

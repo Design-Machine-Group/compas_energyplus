@@ -13,7 +13,8 @@ import json
 import compas_energyplus
 import subprocess
 
-from compas_energyplus.writer import write_idf
+from compas_energyplus.read_write import write_idf
+from compas_energyplus.read_write import read_mean_zone_temperatures
 from compas_energyplus.datastructures.material import Material
 from compas_energyplus.datastructures.material import MaterialNoMass
 from compas_energyplus.datastructures.material import WindowMaterialGas
@@ -26,10 +27,12 @@ from compas_energyplus.datastructures.shading import Shading
 # TODO: Delete previous results
 
 class Building(object):
-    def __init__(self, filepath, weather):
-        self.filepath = filepath
-        self.weather = weather
+    def __init__(self, path, weather):
         self.name = 'Building'
+        self.path = path
+        self.idf_filepath = os.path.join(path, f'{self.name}.idf')
+        self.weather = weather
+
         self.ep_version = '9.6'
         self.num_timesteps = 1
         self.terrain = 'City'
@@ -39,7 +42,7 @@ class Building(object):
         self.materials = {}
         self.constructions = {}
         self.shadings = {}
-        self.mean_air_temperatures = []
+        self.mean_air_temperatures = {}
         self.construction_key_dict = {}
 
     def to_json(self, filepath):
@@ -70,7 +73,8 @@ class Building(object):
             shadings[sk] = self.shadings[sk].data
 
 
-        data = {'filepath' : self.filepath,
+        data = {'idf_filepath' : self.idf_filepath,
+                'path'         : self.path,
                 'weather': self.weather,
                 'name' : self.name,
                 'ep_version' : self.ep_version,
@@ -90,6 +94,7 @@ class Building(object):
     @data.setter
     def data(self, data):
         self.filepath              = data.get('filepath') or {}
+        self.path                  = data.get('path') or {}
         self.weather               = data.get('weather') or {}
         self.name                  = data.get('name') or {}
         self.ep_version            = data.get('ep_version') or {}
@@ -178,7 +183,7 @@ class Building(object):
         self.shadings[len(self.shadings)] = shading
 
     def analyze(self, exe=None):
-        idf = self.filepath
+        idf = self.idf_filepath
         if not exe:
             exe = 'energyplus'
         out = os.path.join(compas_energyplus.TEMP, 'eplus_output')
@@ -186,47 +191,44 @@ class Building(object):
         subprocess.call([exe, '-w', self.weather,'--output-directory', out, idf])
 
     def load_results(self):
-        fh = open(os.path.join(compas_energyplus.TEMP, 'eplus_output', 'eplusout.eso'), 'r')
-        lines = fh.readlines()
-        fh.close()
-        temps = []
-        times = []
-        del lines[:10]
-        del lines[-2:]
-        for i in range(0, len(lines), 2):
-            line1 = lines[i]
-            line2 = lines[i + 1]
-            _, temp = line2.split(',')
-            time = line1.split(',')
-            month = int(time[2])
-            day = int(time[3])
-            hour = int(time[5]) - 1
-            temps.append(float(temp))
-            times.append([hour, day, month])
+        filepath = os.path.join(self.path, 'eplus_output', 'eplusout.eso')
+        temps, times = read_mean_zone_temperatures(self, filepath)
         self.mean_air_temperatures = temps
         self.result_times = times
 
-    def plot_mean_average_temperatures(self):
+    def plot_mean_zone_temperatures(self, plot_type='line'):
         import plotly.express as px
         from datetime import datetime
         import pandas as pd
 
         times = [datetime(2022, m, d, h) for h, d, m in self.result_times]
         temps = b.mean_air_temperatures
-
-        # data = {i: {'temp':temps[i], 'time':times[i]} for i in range(len(times))}
         data = {}
-        for i in range(len(times)):
-            data[i] = {'temp': temps[i],
-                       'time': times[i],
-                       'hour': self.result_times[i][0],
-                       'day': self.result_times[i][1],
-                       'month': self.result_times[i][2],
-                      }
+        counter = 0
+        for zk in self.zones:
+            # print(zk)
+            for i in range(len(times)):
+                # print(i)
+                # print(i, zk, temps[i])
+                data[counter] = {'zone': zk, 
+                                 'temp': temps[i][zk],
+                                 'time': times[i],
+                                 'hour': self.result_times[i][0],
+                                 'day': self.result_times[i][1],
+                                 'month': self.result_times[i][2],
+                        }
+                counter += 1
 
         df = pd.DataFrame.from_dict(data, orient='index')
-        # fig = px.line(x=range(len(temps)), y=temps)
-        fig = px.scatter(df, x='time', y='temp', hover_data={"time": "|%B %d, %H, %Y"}, color='temp')
+        
+        if plot_type == 'scatter':
+            if len(self.zones) > 1:
+                color_by = 'zone'
+            else:
+                color_by = 'temp'
+            fig = px.scatter(df, x='time', y='temp', hover_data={"time": "|%B %d, %H, %Y"}, color=color_by, size=None)
+        elif plot_type == 'line':
+            fig = px.line(df, x='time', y='temp', hover_data={"time": "|%B %d, %H, %Y"}, color='zone')
         fig.update_xaxes(dtick="M1",tickformat="%b", ticklabelmode="period")
         fig.show()
 
@@ -237,10 +239,10 @@ if __name__ == '__main__':
 
     data = compas_energyplus.DATA
     
-    filepath = os.path.join(compas_energyplus.TEMP, 'idf_testing.idf')
+    path = os.path.join(compas_energyplus.TEMP)
     wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
     # wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')
-    b = Building(filepath, wea)
+    b = Building(path, wea)
 
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
@@ -266,9 +268,10 @@ if __name__ == '__main__':
 
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
+    for i in range(50): print('')
     # b.analyze()
-    # b.load_results()
-    # b.plot_mean_average_temperatures()
+    b.load_results()
+    b.plot_mean_zone_temperatures()
 
     b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
 
