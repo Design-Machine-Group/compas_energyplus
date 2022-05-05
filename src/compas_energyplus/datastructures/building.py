@@ -48,10 +48,6 @@ class Building(object):
         self.construction_key_dict = {}
         self.srf_cpt_dict = {}
 
-    def to_json(self, filepath):
-        with open(filepath, 'w+') as fp:
-            json.dump(self.data, fp)
-
     @property
     def data(self):
 
@@ -145,6 +141,10 @@ class Building(object):
         building = cls(path, weather)
         building.data = data
         return building
+
+    def to_json(self, filepath):
+        with open(filepath, 'w+') as fp:
+            json.dump(self.data, fp)
 
     def write_idf(self):
         write_idf(self)
