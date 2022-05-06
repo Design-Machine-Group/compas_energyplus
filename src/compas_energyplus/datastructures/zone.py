@@ -34,7 +34,6 @@ class Zone(object):
         self.name               = data.get('name') or {}
         self.surfaces      = ZoneSurfaces.from_data(surfaces)
 
-
     def add_surfaces(self, mesh):
         self.surfaces = ZoneSurfaces.from_data(mesh.data)
         self.surfaces.assign_zone_surface_attributes()
