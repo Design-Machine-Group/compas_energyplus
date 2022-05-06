@@ -53,6 +53,20 @@ class Zone(object):
         zone.data = data
         return zone
 
+    @classmethod
+    def from_mesh(cls, mesh, name):
+        """
+        Mesh faces must be provided in the following order:
+        1 - Floor face
+        2 - Ceiling face
+        2-N - Wall faces
+        """
+        zone = cls()
+        zone.name == name
+        zone.add_surfaces(mesh)
+        return zone
+
+
 
 
 class ZoneSurfaces(Mesh):
@@ -68,7 +82,7 @@ class ZoneSurfaces(Mesh):
     def __str__(self):
         return 'compas_energyplus Zone Surfaces - {}'.format(self.name)
 
-    def assign_zone_surface_attributes(self):
+    def assign_zone_surface_attributes(self, floor_dict='', ceiling_dict='', walls_dict=''):
 
         self.face_attribute(0, 'name', 'floor')
         self.face_attribute(0, 'surface_type', 'Floor')
