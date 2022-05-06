@@ -206,7 +206,7 @@ class Building(object):
         self.mean_air_temperatures = temps
         self.result_times = times
 
-    def plot_mean_zone_temperatures(self, plot_type='line'):
+    def plot_mean_zone_temperatures(self, plot_type='scatter'):
         import plotly.express as px
         from datetime import datetime
         import pandas as pd
@@ -257,11 +257,11 @@ if __name__ == '__main__':
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
-    z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
-    b.add_zone(z2)
+    # z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
+    # b.add_zone(z2)
 
-    z3 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
-    b.add_zone(z3)
+    # z3 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
+    # b.add_zone(z3)
 
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
