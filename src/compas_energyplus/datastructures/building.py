@@ -212,7 +212,7 @@ class Building(object):
         import pandas as pd
 
         times = [datetime(2022, m, d, h) for h, d, m in self.result_times]
-        temps = b.mean_air_temperatures
+        temps = self.mean_air_temperatures
         data = {}
         counter = 0
         for zk in self.zones:
