@@ -158,8 +158,13 @@ class Building(object):
             gk = geometric_key(cpt)
             if gk in self.srf_cpt_dict:
                 mesh.face_attribute(fk, 'outside_boundary_condition', 'Adiabatic')
-            self.srf_cpt_dict[gk] = {'zone': zk, 'surface': fk}
-    
+                zk_ = self.srf_cpt_dict[gk]['zone']
+                fk_ = self.srf_cpt_dict[g]['surface']
+                self.zones[zk_].surfaces.face_attribute(fk_,'outside_boundary_condition', 'Adiabatic')  
+                self.zones
+            else:
+                self.srf_cpt_dict[gk] = {'zone': zk, 'surface': fk}
+
     def add_window(self, window):
         self.windows[len(self.windows)] = window
 
