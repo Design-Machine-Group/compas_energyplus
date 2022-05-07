@@ -159,7 +159,7 @@ class Building(object):
             if gk in self.srf_cpt_dict:
                 mesh.face_attribute(fk, 'outside_boundary_condition', 'Adiabatic')
                 zk_ = self.srf_cpt_dict[gk]['zone']
-                fk_ = self.srf_cpt_dict[g]['surface']
+                fk_ = self.srf_cpt_dict[gk]['surface']
                 self.zones[zk_].surfaces.face_attribute(fk_,'outside_boundary_condition', 'Adiabatic')  
                 self.zones
             else:
@@ -225,7 +225,7 @@ class Building(object):
             for i in range(len(times)):
                 # print(i)
                 # print(i, zk, temps[i])
-                data[counter] = {'zone': zk, 
+                data[counter] = {'zone': self.zones[zk].name, 
                                  'temp': temps[i][zk],
                                  'time': times[i],
                                  'hour': self.result_times[i][0],
@@ -249,7 +249,8 @@ class Building(object):
 
 
 if __name__ == '__main__':
-
+    from compas_energyplus.viewers import BuildingViewer
+    
     for i in range(50): print('')
 
     data = compas_energyplus.DATA
@@ -262,14 +263,17 @@ if __name__ == '__main__':
     z1 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone1.json'))
     b.add_zone(z1)
 
-    # z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
-    # b.add_zone(z2)
+    z2 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone2.json'))
+    b.add_zone(z2)
 
-    # z3 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
-    # b.add_zone(z3)
+    z3 = Zone.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'zone3.json'))
+    b.add_zone(z3)
 
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
+
+    w2 = Window.from_wall_and_wwr(z3, 4, .99, 'Generic Double Pane')
+    b.add_window(w2)
 
     s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
     b.add_shading(s1)
@@ -287,11 +291,14 @@ if __name__ == '__main__':
     b.write_idf()
     b.analyze(exe='/Applications/EnergyPlus-9-6-0/energyplus')
     for i in range(50): print('')
-    # b.analyze()
     b.load_results()
-    b.plot_mean_zone_temperatures()
+    b.plot_mean_zone_temperatures(plot_type='scatter')
+
+    # v = BuildingViewer(b)
+    # v.show()
+
 
     b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
 
-    # b2 = Building.from_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
-    # print(b2.constructions)
+    # # b2 = Building.from_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
+    # # print(b2.constructions)

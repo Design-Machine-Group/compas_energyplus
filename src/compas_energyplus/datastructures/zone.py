@@ -81,7 +81,7 @@ class ZoneSurfaces(Mesh):
     def __str__(self):
         return 'compas_energyplus Zone Surfaces - {}'.format(self.name)
 
-    def assign_zone_surface_attributes(self, floor_dict='', ceiling_dict='', walls_dict=''):
+    def assign_zone_surface_attributes(self):
 
         self.face_attribute(0, 'name', 'floor')
         self.face_attribute(0, 'surface_type', 'Floor')
