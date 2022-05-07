@@ -12,11 +12,8 @@ from math import sqrt
 
 from compas.geometry import subtract_vectors
 from compas.geometry import scale_vector
-from compas.geometry import length_vector
 from compas.geometry import add_vectors
 from compas.geometry import normalize_vector
-
-from compas.geometry import area_polygon
 from compas.geometry import distance_point_point
 
 class Window(object):

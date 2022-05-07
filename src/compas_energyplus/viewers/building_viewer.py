@@ -168,7 +168,7 @@ class BuildingViewer(object):
         intensity = []
         for fk in mesh.faces():
             ck = self.building.windows[key].construction
-            con = self.building.constructions[str(self.building.construction_key_dict[ck])]
+            con = self.building.constructions[self.building.construction_key_dict[ck]]
             layers = con.layers
             # string = 'zone: {}<br>'.format(wname)
             string = 'name: {}<br>'.format(wname)
@@ -250,7 +250,7 @@ class BuildingViewer(object):
         for fk in mesh.faces():
             faceatts = mesh.face_attributes(fk)
             ck = mesh.face_attribute(fk, 'construction')
-            con = self.building.constructions[str(self.building.construction_key_dict[ck])]
+            con = self.building.constructions[self.building.construction_key_dict[ck]]
             layers = con.layers
             string = 'zone: {}<br>'.format(zname)
             for att in attrs:

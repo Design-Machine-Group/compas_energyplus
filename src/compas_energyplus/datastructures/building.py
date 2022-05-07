@@ -13,6 +13,8 @@ import json
 import compas_energyplus
 import subprocess
 
+from ast import literal_eval
+
 from compas.utilities import geometric_key
 
 from compas_energyplus.read_write import write_idf
@@ -122,13 +124,13 @@ class Building(object):
 
         for mk in materials:
             mat = mat_dict[materials[mk]['__type__']]
-            self.materials[mk] = mat.from_data(materials[mk])
+            self.materials[literal_eval(mk)] = mat.from_data(materials[mk])
 
         for ck in constructions:
-            self.constructions[ck] = Construction.from_data(constructions[ck])
+            self.constructions[literal_eval(ck)] = Construction.from_data(constructions[ck])
 
         for sk in shadings:
-            self.shadings[sk] = Shading.from_data(shadings[sk])
+            self.shadings[literal_eval(sk)] = Shading.from_data(shadings[sk])
 
     @classmethod
     def from_json(cls, filepath):
@@ -272,7 +274,7 @@ if __name__ == '__main__':
     w1 = Window.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'w1.json'))
     b.add_window(w1)
 
-    w2 = Window.from_wall_and_wwr(z3, 4, .99, 'Generic Double Pane')
+    w2 = Window.from_wall_and_wwr(z3, 3, .6, 'Generic Double Pane')
     b.add_window(w2)
 
     s1 = Shading.from_json(os.path.join(compas_energyplus.DATA, 'building_parts', 'shading1.json'))
@@ -294,11 +296,7 @@ if __name__ == '__main__':
     b.load_results()
     b.plot_mean_zone_temperatures(plot_type='scatter')
 
-    # v = BuildingViewer(b)
-    # v.show()
-
+    v = BuildingViewer(b)
+    v.show()
 
     b.to_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
-
-    # # b2 = Building.from_json(os.path.join(compas_energyplus.DATA, 'buildings', '1zone_building.json'))
-    # # print(b2.constructions)
