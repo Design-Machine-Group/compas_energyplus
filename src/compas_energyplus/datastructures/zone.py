@@ -61,7 +61,7 @@ class Zone(object):
         2-N - Wall faces
         """
         zone = cls()
-        zone.name == name
+        zone.name = name
         zone.add_surfaces(mesh)
         return zone
 

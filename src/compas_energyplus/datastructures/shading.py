@@ -9,6 +9,11 @@ __version__ = "0.1.0"
 
 import json
 from compas.datastructures import Mesh
+from compas.geometry import subtract_vectors
+from compas.geometry import cross_vectors
+from compas.geometry import scale_vector
+from compas.geometry import normalize_vector
+from compas.geometry import add_vectors
 
 
 class Shading(object):
@@ -50,5 +55,38 @@ class Shading(object):
         zone = cls()
         zone.data = data
         return zone
+
+    @classmethod
+    def from_window(cls, window, top=None, left=None, right=None):
+        vertices = list(window.nodes)
+        v1 = subtract_vectors(vertices[3], vertices[2])
+        v2 = subtract_vectors(vertices[3], vertices[0])
+        n = normalize_vector(cross_vectors(v2, v1))
+        faces = []
+        if top:
+            ntop = scale_vector(n, top)
+            vertices.append(add_vectors(vertices[0], ntop))
+            vertices.append(add_vectors(vertices[1], ntop))
+            num = len(vertices) - 1
+            faces.append([1, 0, num - 1, num])
+        if left:
+            nleft = scale_vector(n, left)
+            vertices.append(add_vectors(vertices[1], nleft))
+            vertices.append(add_vectors(vertices[2], nleft))
+            num = len(vertices) - 1
+            faces.append([2, 1, num - 1, num])
+        if right:
+            nright = scale_vector(n, right)
+            vertices.append(add_vectors(vertices[0], nright))
+            vertices.append(add_vectors(vertices[3], nright))
+            num = len(vertices) - 1
+            faces.append([3, 0, num - 1, num])
+
+
+        mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        shading = cls()
+        shading.name = f'sh_win{window.name}'
+        shading.mesh = mesh
+        return shading
 
 
