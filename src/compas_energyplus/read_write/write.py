@@ -24,26 +24,26 @@ def write_idf(building):
 
 def write_pre(building):
     fh = open(building.idf_filepath, 'a')
-    fh.write('\n') 
+    fh.write('\n')
     fh.write('Version,\n')
-    fh.write(f'  {building.ep_version};{"":<30}!- Version Identifier\n')
+    fh.write('  {};         !- Version Identifier\n'.format(building.ep_version))
     fh.write('\n')
     fh.write('Timestep,\n')
-    fh.write(f'  {building.num_timesteps};{"":<30}!- Number of Timesteps per Hour\n')  
-    fh.write('\n')           
+    fh.write('  {};         !- Number of Timesteps per Hour\n'.format(building.num_timesteps))
+    fh.write('\n')
     fh.close()
 
 def write_building(building):
     fh = open(building.idf_filepath, 'a')
     fh.write('Building,\n')
-    fh.write(f'  {building.name},{"":<40}!- Name\n')
-    fh.write(f'  0,{"":<40} !- North Axis (deg)\n')
-    fh.write(f'  {building.terrain},{"":<40}!- Terrain\n')
-    fh.write(f'  ,{"":<40} !- Loads Convergence Tolerance Value (W)\n')
-    fh.write(f'  ,{"":<40} !- Temperature Convergence Tolerance Value (deltaC)\n')
-    fh.write(f'  {building.solar_distribution},{"":<40}!- Solar Distribution\n')
-    fh.write(f'  ,{"":<40} !- Maximum Number of Warmup Days\n')
-    fh.write(f'  ;{"":<40} !- Minimum Number of Warmup Days\n')
+    fh.write('  {},         !- Name\n'.format(building.name))
+    fh.write('  0,          !- North Axis (deg)\n')
+    fh.write('  {},         !- Terrain\n'.format(building.terrain))
+    fh.write('  ,           !- Loads Convergence Tolerance Value (W)\n')
+    fh.write('  ,           !- Temperature Convergence Tolerance Value (deltaC)\n')
+    fh.write('  {},         !- Solar Distribution\n'.format(building.solar_distribution))
+    fh.write('  ,           !- Maximum Number of Warmup Days\n')
+    fh.write('  ;           !- Minimum Number of Warmup Days\n')
     fh.write('\n')
     fh.close()
 
@@ -51,12 +51,12 @@ def write_global_vars(building):
 
     # global geometric rules - - - - - -
     fh = open(building.idf_filepath, 'a')
-    fh.write('\n') 
+    fh.write('\n')
     fh.write('GlobalGeometryRules,\n')
-    fh.write(f'  UpperLeftCorner,{"":<30}!- Starting Vertex Position\n')
-    fh.write(f'  CounterClockWise,{"":<30}!- Vertex Entry Direction\n')
-    fh.write(f'  World;{"":<30}!- Coordinate System\n')
-    fh.write('\n')           
+    fh.write('  UpperLeftCorner,        !- Starting Vertex Position\n')
+    fh.write('  CounterClockWise,       !- Vertex Entry Direction\n')
+    fh.write('  World;                  !- Coordinate System\n')
+    fh.write('\n')
     fh.close()
 
 def write_run_period(building):
@@ -87,19 +87,19 @@ def write_zones(building):
 def write_zone(building, zone):
     fh = open(building.idf_filepath, 'a')
     fh.write('Zone,\n')
-    fh.write(f'  {zone.name},{"":<30}!- Name\n')
-    fh.write(f'  0,{"":<30} !- Direction of Relative North (deg)\n')
-    fh.write(f'  0,{"":<30} !- X Origin (m)\n')
-    fh.write(f'  0,{"":<30} !- Y Origin (m)\n')
-    fh.write(f'  0,{"":<30} !- Z Origin (m)\n')
-    fh.write(f'  ,{"":<30} !- Type\n')
-    fh.write(f'  1,{"":<30} !- Multiplier\n')
-    fh.write(f'  ,{"":<30} !- Ceiling Height (m)\n')
-    fh.write(f'  ,{"":<30} !- Volume (m3)\n')
-    fh.write(f'  ,{"":<30} !- Floor Area (m2)\n')
-    fh.write(f'  ,{"":<30} !- Zone Inside Convection Algorithm\n')
-    fh.write(f'  ,{"":<30} !- Zone Outside Convection Algorithm\n')
-    fh.write(f'  Yes;{"":<30} !- Part of Total Floor Area\n')
+    fh.write('  {},         !- Name\n'.format(zone.name))
+    fh.write('  0,          !- Direction of Relative North (deg)\n')
+    fh.write('  0,          !- X Origin (m)\n')
+    fh.write('  0,          !- Y Origin (m)\n')
+    fh.write('  0,          !- Z Origin (m)\n')
+    fh.write('  ,           !- Type\n')
+    fh.write('  1,          !- Multiplier\n')
+    fh.write('  ,           !- Ceiling Height (m)\n')
+    fh.write('  ,           !- Volume (m3)\n')
+    fh.write('  ,           !- Floor Area (m2)\n')
+    fh.write('  ,           !- Zone Inside Convection Algorithm\n')
+    fh.write('  ,           !- Zone Outside Convection Algorithm\n')
+    fh.write('  Yes;        !- Part of Total Floor Area\n')
     fh.write('\n')
     fh.close()
 
@@ -119,22 +119,22 @@ def write_material_glazing(building, mat):
     fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('WindowMaterial:Glazing,\n')
-    fh.write(f'  {mat.name                                   },         !- Name\n')
-    fh.write(f'  {mat.optical_data_type                      },         !- Optical Data Type\n')
-    fh.write(f'  {mat.win_glass_spectral_data_name           },         !- Window Glass Spectral Data Set Name\n')
-    fh.write(f'  {mat.thickness                              },         !- Thickness (m)\n')
-    fh.write(f'  {mat.solar_transmittance                    },         !- Solar Transmittance at Normal Incidence\n')
-    fh.write(f'  {mat.front_solar_reflectance                },         !- Front Side Solar Reflectance at Normal Incidence\n')
-    fh.write(f'  {mat.back_solar_reflectance                 },         !- Back Side Solar Reflectance at Normal Incidence\n')
-    fh.write(f'  {mat.visible_transmittance                  },         !- Visible Transmittance at Normal Incidence\n')
-    fh.write(f'  {mat.front_visible_reflectance              },         !- Front Side Visible Reflectance at Normal Incidence\n')
-    fh.write(f'  {mat.back_visible_reflectance               },         !- Back Side Visible Reflectance at Normal Incidence\n')
-    fh.write(f'  {mat.infrared_transmittance                 },         !- Infrared Transmittance at Normal Incidence\n')
-    fh.write(f'  {mat.front_infrared_hemispherical_emissivity},         !- Front Side Infrared Hemispherical Emissivity\n')
-    fh.write(f'  {mat.back_infrared_hemispherical_emissivity },         !- Back Side Infrared Hemispherical Emissivity\n')
-    fh.write(f'  {mat.conductivity                           },         !- Conductivity (W/m-K)\n')
-    fh.write(f'  {mat.dirt_correction_factor                 },         !- Dirt Correction Factor for Solar and Visible Transmittance\n')
-    fh.write(f'  {mat.solar_diffusing                        };         !- Solar Diffusing\n')
+    fh.write('  {},         !- Name\n'.format(mat.name))
+    fh.write('  {},         !- Optical Data Type\n'.format(mat.optical_data_type))
+    fh.write('  {},         !- Window Glass Spectral Data Set Name\n'.format(mat.win_glass_spectral_data_name))
+    fh.write('  {},         !- Thickness (m)\n'.format(mat.thickness))
+    fh.write('  {},         !- Solar Transmittance at Normal Incidence\n'.format(mat.solar_transmittance))
+    fh.write('  {},         !- Front Side Solar Reflectance at Normal Incidence\n'.format(mat.front_solar_reflectance))
+    fh.write('  {},         !- Back Side Solar Reflectance at Normal Incidence\n'.format(mat.back_solar_reflectance))
+    fh.write('  {},         !- Visible Transmittance at Normal Incidence\n'.format(mat.visible_transmittance))
+    fh.write('  {},         !- Front Side Visible Reflectance at Normal Incidence\n'.format(mat.front_visible_reflectance))
+    fh.write('  {},         !- Back Side Visible Reflectance at Normal Incidence\n'.format(mat.back_visible_reflectance))
+    fh.write('  {},         !- Infrared Transmittance at Normal Incidence\n'.format(mat.infrared_transmittance))
+    fh.write('  {},         !- Front Side Infrared Hemispherical Emissivity\n'.format(mat.front_infrared_hemispherical_emissivity))
+    fh.write('  {},         !- Back Side Infrared Hemispherical Emissivity\n'.format(mat.back_infrared_hemispherical_emissivity))
+    fh.write('  {},         !- Conductivity (W/m-K)\n'.format(mat.conductivity))
+    fh.write('  {},         !- Dirt Correction Factor for Solar and Visible Transmittance\n'.format(mat.dirt_correction_factor))
+    fh.write('  {};         !- Solar Diffusing\n'.format(mat.solar_diffusing))
     fh.write('\n')
     fh.close()
 
@@ -142,9 +142,9 @@ def write_material_gas(building, mat):
     fh = open(building.idf_filepath, 'a')
     fh.write('\n')
     fh.write('WindowMaterial:Gas,\n')
-    fh.write(f'  {mat.name      },         !- Name\n')
-    fh.write(f'  {mat.gas_type },         !- Gas Type\n')
-    fh.write(f'  {mat.thickness};         !- Thickness (m)\n')
+    fh.write('  {},         !- Name\n'.format(mat.name))
+    fh.write('  {},         !- Gas Type\n'.format(mat.gas_type))
+    fh.write('  {};         !- Thickness (m)\n'.format(mat.thickness))
     fh.write('\n')
     fh.close()
 
@@ -171,7 +171,7 @@ def write_material(building, mat):
     fh.write('  {},     !- Thickness (m)\n'.format(mat.thickness))
     fh.write('  {},     !- Conductivity (W/m-K)\n'.format(mat.conductivity))
     fh.write('  {},     !- Density (kg/m3)\n'.format(mat.density))
-    fh.write('  {},     !- Specific Heat (J/kg-K)\n'.format(mat.specific_heat))    
+    fh.write('  {},     !- Specific Heat (J/kg-K)\n'.format(mat.specific_heat))
     fh.write('  {},     !- Thermal Absorptance\n'.format(mat.thermal_absorptance))
     fh.write('  {},     !- Solar Absorptance\n'.format(mat.solar_absorptance))
     fh.write('  {};     !- Visible Absorptance\n'.format(mat.visible_absorptance))
@@ -217,6 +217,7 @@ def write_building_surface(building, zone, fk):
 
     for i, vk in enumerate(zone.surfaces.face_vertices(fk)):
         x, y, z = zone.surfaces.vertex_coordinates(vk)
+        x, y, z = [float(coord) for coord in [x, y, z]]
         if i == num_vert - 1:
             sep = ';'
         else:
@@ -328,17 +329,17 @@ def write_shading(building, shading):
     mesh = shading.mesh
     for fk in mesh.faces():
         fh.write('Shading:Building:Detailed,\n')
-        fh.write(f'  Shading {sname}-{fk}, !- Detached Shading\n')
+        fh.write('  Shading {}-{}, !- Detached Shading\n'.format(sname, fk))
         fh.write('  , !- Shadowing Transmittance & Schedule\n')
         vertices = mesh.face_vertices(fk)
-        fh.write(f'  {len(vertices)}, !-Number of verrices\n')
+        fh.write('  {}, !-Number of verrices\n'.format(len(vertices)))
         for i, vk in enumerate(vertices):
             if i == len(vertices) - 1:
                 sep = ';'
             else:
                 sep = ','
             x, y, z = mesh.vertex_coordinates(vk)
-            fh.write(f'  {x}, {y}, {z}{sep} ! Vertex {i}\n')
+            fh.write('  {}, {}, {}{} ! Vertex {}\n'.format(x, y, z, sep, i))
         fh.write('\n')
     fh.write('\n')
     fh.close()
@@ -350,12 +351,12 @@ if __name__ == '__main__':
     timesptep - x
     building - x
     global geometry rules - x
-    run period - x 
+    run period - x
     zone - x
     building surface: detailed - x
     material - x
     construction - x
-    material no mass - x 
+    material no mass - x
 
     output variables - x
 
@@ -371,7 +372,7 @@ if __name__ == '__main__':
     construction window data file THIS SHOULD BE OPTIONAL
     site ground temperature building surface
     schedule type limits
-    
+
 
     fenestration surface detailed
     """

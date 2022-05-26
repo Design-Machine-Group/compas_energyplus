@@ -22,7 +22,7 @@ class Window(object):
         self.nodes = None
         self.building_surface = None
         self.construction = None
-    
+
     @classmethod
     def from_wall_and_wwr(cls, zone, wall_key, wwr, construction):
         if wwr > .95:
@@ -44,12 +44,12 @@ class Window(object):
         p3 = add_vectors(cpt, add_vectors(vx_, vy))
 
         window = cls()
-        window.name = f'win_{zone.name}_{wall_key}'
+        window.name = 'win_{}_{}'.format(zone.name, wall_key)
         window.nodes = [p0, p1, p2, p3]
-        window.building_surface = f'{zone.name}_{wall_key}' 
+        window.building_surface = '{}_{}'.format(zone.name, wall_key)
         window.construction = construction
         return window
-    
+
 
     def to_json(self, filepath):
         with open(filepath, 'w+') as fp:
@@ -63,7 +63,7 @@ class Window(object):
                 'construction'          : self.construction,
                 }
         return data
-    
+
     @data.setter
     def data(self, data):
         self.name               = data.get('name') or {}

@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-from compas_energyplus.datastructures.construction import Construction
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -27,6 +26,8 @@ from compas_energyplus.datastructures.construction import Construction
 from compas_energyplus.datastructures.zone import Zone
 from compas_energyplus.datastructures.window import Window
 from compas_energyplus.datastructures.shading import Shading
+from compas_energyplus.datastructures.construction import Construction
+
 
 # TODO: Delete previous results
 
@@ -34,7 +35,7 @@ class Building(object):
     def __init__(self, path, weather):
         self.name = 'Building'
         self.path = path
-        self.idf_filepath = os.path.join(path, f'{self.name}.idf')
+        self.idf_filepath = os.path.join(path, '{}.idf'.format(self.name))
         self.weather = weather
 
         self.ep_version = '9.6'
@@ -87,11 +88,11 @@ class Building(object):
                 'materials' : materials,
                 'constructions' : constructions,
                 'shadings': shadings,
-                'construction_key_dict': self.construction_key_dict, 
+                'construction_key_dict': self.construction_key_dict,
                 'mean_air_temperatures' : self.mean_air_temperatures,
                 }
         return data
-    
+
     @data.setter
     def data(self, data):
         self.filepath              = data.get('filepath') or {}
@@ -119,7 +120,7 @@ class Building(object):
         mat_dict = {'Material': Material,
                     'MaterialNoMass': MaterialNoMass,
                     'WindowMaterialGlazing': WindowMaterialGlazing,
-                    'WindowMaterialGas': WindowMaterialGas, 
+                    'WindowMaterialGas': WindowMaterialGas,
                     }
 
         for mk in materials:
@@ -162,7 +163,7 @@ class Building(object):
                 mesh.face_attribute(fk, 'outside_boundary_condition', 'Adiabatic')
                 zk_ = self.srf_cpt_dict[gk]['zone']
                 fk_ = self.srf_cpt_dict[gk]['surface']
-                self.zones[zk_].surfaces.face_attribute(fk_,'outside_boundary_condition', 'Adiabatic')  
+                self.zones[zk_].surfaces.face_attribute(fk_,'outside_boundary_condition', 'Adiabatic')
                 self.zones
             else:
                 self.srf_cpt_dict[gk] = {'zone': zk, 'surface': fk}
@@ -178,7 +179,7 @@ class Building(object):
         mat_dict = {'Material': Material,
                     'MaterialNoMass': MaterialNoMass,
                     'WindowMaterialGlazing': WindowMaterialGlazing,
-                    'WindowMaterialGas': WindowMaterialGas, 
+                    'WindowMaterialGas': WindowMaterialGas,
                     }
 
         for mk in lib:
@@ -204,7 +205,7 @@ class Building(object):
         if not exe:
             exe = 'energyplus'
         out = os.path.join(compas_energyplus.TEMP, 'eplus_output')
-        print(exe, '-w', self.weather,'--output-directory', out, idf)
+        # print(exe, '-w', self.weather,'--output-directory', out, idf)
         subprocess.call([exe, '-w', self.weather,'--output-directory', out, idf])
 
     def load_results(self):
@@ -227,7 +228,7 @@ class Building(object):
             for i in range(len(times)):
                 # print(i)
                 # print(i, zk, temps[i])
-                data[counter] = {'zone': self.zones[zk].name, 
+                data[counter] = {'zone': self.zones[zk].name,
                                  'temp': temps[i][zk],
                                  'time': times[i],
                                  'hour': self.result_times[i][0],
@@ -237,7 +238,7 @@ class Building(object):
                 counter += 1
 
         df = pd.DataFrame.from_dict(data, orient='index')
-        
+
         if plot_type == 'scatter':
             if len(self.zones) > 1:
                 color_by = 'zone'
@@ -252,11 +253,11 @@ class Building(object):
 
 if __name__ == '__main__':
     from compas_energyplus.viewers import BuildingViewer
-    
+
     for i in range(50): print('')
 
     data = compas_energyplus.DATA
-    
+
     path = os.path.join(compas_energyplus.TEMP)
     wea = os.path.join(data, 'weather_files', 'USA_WA_Seattle-Tacoma.Intl.AP.727930_TMY3.epw')
     # wea = os.path.join(data, 'weather_files', 'USA_CA_San.Francisco.Intl.AP.724940_TMY3.epw')

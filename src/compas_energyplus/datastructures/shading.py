@@ -31,7 +31,7 @@ class Shading(object):
                 'mesh'              : self.mesh.to_data(),
                 }
         return data
-    
+
     @data.setter
     def data(self, data):
         mesh           = data.get('mesh') or {}
@@ -85,8 +85,6 @@ class Shading(object):
 
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         shading = cls()
-        shading.name = f'sh_win{window.name}'
+        shading.name = 'sh_win{}'.format(window.name)
         shading.mesh = mesh
         return shading
-
-
